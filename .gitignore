@@ -8,4 +8,6 @@ __pycache__
 
 build
 *.c
-vits/monotonic_align/monotonic_align
+#vits/monotonic_align/monotonic_align
+venv
+*.pth
