@@ -1,0 +1,19 @@
+# OCR Toml Config
+
+title = "OCR Service Config"
+ENV = "default"
+
+DEBUG = false
+SQLALCHEMY_TRACK_MODIFICATIONS = false
+
+# DB
+DB_USERNAME = "tts"
+DB_PASSWORD = "tts"
+DB_HOST = "localhost"
+DB_DATABASE = "tts"
+DB_PORT = "5432"
+# DB Conn pool config
+POOL_PRE_PING = true
+POOL_TIMEOUT = 120
+POOL_SIZE = 5
+MAX_OVERFLOW = 10

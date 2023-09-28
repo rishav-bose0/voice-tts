@@ -1,0 +1,41 @@
+version: '3.8'
+services:
+  tts-web:
+    build:
+      context: .
+      dockerfile: build/docker/prod/Dockerfile.common.prod
+    container_name: tts-web
+    ports:
+      - 28080:8080
+      - 28081:8081
+    environment:
+      - APP_ENV=dev_docker
+      - APP_NAME=web
+    restart: on-failure
+    depends_on:
+      - db
+
+  db:
+    image: postgres:11.4
+    container_name: ocr-db
+    ports:
+      - 45432:5432
+    environment:
+      - POSTGRES_USER=ocr
+      - POSTGRES_PASSWORD=ocr
+      - POSTGRES_DB=ocr
+    volumes:
+      - ./app/db-data:/var/lib/postgresql/data
+
+  migrations:
+      build:
+        context: .
+        dockerfile: app/build/docker/prod/Dockerfile.migration.prod
+      container_name: migration
+      depends_on:
+        - db
+      links:
+        - db
+      environment:
+        - MIGRATION_CMD=up
+      restart: on-failure
