@@ -17,7 +17,7 @@ class TTSAggregate:
 
 @dataclass
 class UserAggregate:
-    user_entity: UserEntity = UserEntity()
+    user_entity: UserEntity = field(default_factory=lambda: UserEntity())
 
     def get_user_entity(self):
         return self.user_entity
