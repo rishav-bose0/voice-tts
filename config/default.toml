@@ -1,14 +1,14 @@
 # OCR Toml Config
 
-title = "OCR Service Config"
+title = "TTS Service Config"
 ENV = "default"
 
 DEBUG = false
 SQLALCHEMY_TRACK_MODIFICATIONS = false
 
 # DB
-DB_USERNAME = "ocr"
-DB_PASSWORD = "ocr"
+DB_USERNAME = "tts"
+DB_PASSWORD = "tts"
 DB_HOST = "127.0.0.1"
 DB_DATABASE = "tts"
 DB_PORT = "5432"

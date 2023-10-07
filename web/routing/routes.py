@@ -19,7 +19,7 @@ def add_default_routes(api: Api) -> Api:
     return api
 
 
-def add_ocr_api_routes(api: Api) -> Api:
+def add_tts_api_routes(api: Api) -> Api:
     for url, controller in api_routes.items():
         api.add_resource(controller, url)
     return api

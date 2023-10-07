@@ -24,7 +24,7 @@ class UserDetails(base.Base, db.Model):
 
     def to_entity(self) -> user_entity.UserEntity:
         """
-        converts database model to ocr_entity
+        converts database model to user_entity
         :return: user_entity.UserEntity
         """
         entity = user_entity.UserEntity()

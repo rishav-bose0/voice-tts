@@ -32,7 +32,7 @@ class TTSDetails(base.Base, db.Model):
 
     def to_entity(self) -> tts_entity.TTSEntity:
         """
-        converts database model to ocr_entity
+        converts database model to tts_entity
         :return: tts_entity.TTSEntity
         """
         entity = tts_entity.TTSEntity()
