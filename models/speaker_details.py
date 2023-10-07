@@ -28,7 +28,7 @@ class SpeakerDetails(base.Base, db.Model):
 
     def to_entity(self) -> speaker_entity.SpeakerEntity:
         """
-        converts database model to ocr_entity
+        converts database model to speaker_entity
         :return: speaker_entity.SpeakerEntity
         """
         entity = speaker_entity.SpeakerEntity()

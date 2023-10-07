@@ -11,3 +11,4 @@ build
 #vits/monotonic_align/monotonic_align
 venv
 *.pth
+.idea

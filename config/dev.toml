@@ -1,6 +1,6 @@
 # OCR Toml Config
 
-title = "OCR Service Config"
+title = "TTS Service Config"
 ENV = "default"
 
 DEBUG = false
