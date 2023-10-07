@@ -38,7 +38,7 @@ class SpeechMetadata:
 class TTSEntity(BaseEntity):
     user_id: str = field(default_factory=str)
     speaker_id: str = field(default_factory=str)
-    speech_metadata: SpeechMetadata = None
+    speech_metadata: SpeechMetadata = field(default_factory=lambda: SpeechMetadata())
     text: str = field(default_factory=str)
     language: str = field(default_factory=str)
 
