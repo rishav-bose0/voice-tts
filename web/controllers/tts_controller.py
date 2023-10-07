@@ -1,7 +1,3 @@
-import numpy as np
-from flask import Response
-from scipy.io import wavfile
-
 from service import TTSService
 from web.controllers.base_controller import BaseController
 
