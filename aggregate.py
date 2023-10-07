@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from entity.tts_entity import TTSEntity
 from entity.user_entity import UserEntity
@@ -6,7 +6,7 @@ from entity.user_entity import UserEntity
 
 @dataclass
 class TTSAggregate:
-    tts_entity: TTSEntity = TTSEntity()
+    tts_entity: TTSEntity = field(default_factory=lambda: TTSEntity())
 
     def get_tts_entity(self):
         return self.tts_entity
