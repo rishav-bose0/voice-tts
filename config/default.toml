@@ -17,3 +17,8 @@ POOL_PRE_PING = true
 POOL_TIMEOUT = 120
 POOL_SIZE = 5
 MAX_OVERFLOW = 10
+
+#AWS ACCESS KEYS
+aws_access_key_id="AKIAW22X43X22B3CSB5J"
+aws_secret_access_key="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"
+aws_region_name = "us-east-2"
