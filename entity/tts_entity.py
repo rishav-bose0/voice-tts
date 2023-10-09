@@ -31,7 +31,7 @@ class SpeechMetadata:
         self.emotion = emotion
 
     def to_JSON(self):
-        return json.dumps(self.__dict__)
+        return json.dumps(self, default=lambda o: o.__dict__)
 
 
 @dataclass
@@ -84,7 +84,7 @@ class TTSEntity(BaseEntity):
         self.id = p_id
 
     def to_JSON(self):
-        return self.__dict__
+        return json.dumps(self, default=lambda o: o.__dict__)
 
     def set_speech_metadata_from_JSON(self, speech_metadata_JSON):
         if speech_metadata_JSON is None:

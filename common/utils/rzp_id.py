@@ -1,3 +1,4 @@
+import json
 import re
 
 from marshmallow import ValidationError
@@ -27,3 +28,6 @@ class RzpID:
         if not (is_length_valid and is_pattern_valid):
             raise ValidationError(f'{input_id} is not a valid Razorpay Id.')
         return True
+
+    def toJSON(self):
+        return json.dumps(self, default=lambda o: o.__dict__)
