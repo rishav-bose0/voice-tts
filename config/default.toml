@@ -7,10 +7,15 @@ DEBUG = false
 SQLALCHEMY_TRACK_MODIFICATIONS = false
 
 # DB
-DB_USERNAME = "airigsmxozyeah"
-DB_PASSWORD = "cd5bc7dbdabd08bc479476f013fae673a1fb0d986bab66ef7b5a931dacc718cc"
-DB_HOST = "ec2-54-208-11-146.compute-1.amazonaws.com"
-DB_DATABASE = "deur0tpnd4i308"
+#DB_USERNAME = "tts"
+#DB_PASSWORD = "tts"
+#DB_HOST = "localhost"
+#DB_DATABASE = "tts"
+#DB_PORT = "5432"
+DB_USERNAME = "yqmrsepyqlzcsw"
+DB_PASSWORD = "f01a5d3aed7bedc6717237ab31d2c1b2ac73cbc1159a36ba109b65d8ee5fdc96"
+DB_HOST = "ec2-52-206-38-187.compute-1.amazonaws.com"
+DB_DATABASE = "d9e776m7ret5a1"
 DB_PORT = "5432"
 # DB Conn pool config
 POOL_PRE_PING = true

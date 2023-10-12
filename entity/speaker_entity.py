@@ -6,9 +6,11 @@ from common.utils.rzp_id import RzpID
 
 
 @dataclass
-class SpeakerEntity(BaseEntity):
+class SpeakerEntity:
+    id: str = field(default_factory=str)
     name: str = field(default_factory=str)
-    pretrained_link: str = field(default_factory=str)
+    gender: str = field(default_factory=str)
+    model_name: str = field(default_factory=str)
     language: str = field(default_factory=str)
     emotions: list[str] = field(default_factory=list[str])
 
@@ -24,11 +26,17 @@ class SpeakerEntity(BaseEntity):
     def set_name(self, name):
         self.name = name
 
-    def get_pretrained_link(self):
-        return self.pretrained_link
+    def get_gender(self):
+        return self.gender
 
-    def set_pretrained_link(self, pretrained_link):
-        self.pretrained_link = pretrained_link
+    def set_gender(self, gender):
+        self.gender = gender
+
+    def get_model_name(self):
+        return self.model_name
+
+    def set_model_name(self, model_name):
+        self.model_name = model_name
 
     def get_language(self):
         return self.language
@@ -41,11 +49,6 @@ class SpeakerEntity(BaseEntity):
 
     def set_emotions(self, emotions):
         self.emotions = emotions
-
-    def initialize(self):
-        p_id = RzpID()
-        p_id.create()
-        self.id = p_id
 
     def to_JSON(self):
         return self.__dict__

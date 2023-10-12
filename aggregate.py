@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 
+from entity.speaker_entity import SpeakerEntity
 from entity.tts_entity import TTSEntity
 from entity.user_entity import UserEntity
 
@@ -24,3 +25,14 @@ class UserAggregate:
 
     def set_user_entity(self, user_entity):
         self.user_entity = user_entity
+
+
+@dataclass
+class SpeakerAggregate:
+    speaker_entity: SpeakerEntity = field(default_factory=SpeakerEntity)
+
+    def get_speaker_entity(self):
+        return self.speaker_entity
+
+    def set_speaker_entity(self, speaker_entity):
+        self.speaker_entity = speaker_entity

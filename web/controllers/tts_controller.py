@@ -1,3 +1,4 @@
+from insert import run_script
 from service import TTSService
 from web.controllers.base_controller import BaseController
 
@@ -19,3 +20,18 @@ class AddUser(BaseController):
         headers = BaseController.get_headers()
         response = TTSService().add_user(request, headers)
         return response, 200
+
+
+class VoicePreview(BaseController):
+    def get(self, s_id, name):
+        return TTSService().voice_preview(s_id, name)
+        # response = {
+        #     "Status": status,
+        #     "Id": s_id,
+        # }
+        # return response, 200
+
+
+class ListVoices(BaseController):
+    def get(self):
+        return TTSService().list_all_speakers()

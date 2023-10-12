@@ -1,4 +1,5 @@
 import numpy as np
+from flask import send_file
 
 import constants
 from core import TTSCore
@@ -35,7 +36,7 @@ class TTSService:
             duration=request.get(constants.DURATION, 1),
         )
         tts_entity = TTSEntity(speaker_id=request.get(constants.SPEAKER_ID), text=request.get(constants.TEXT),
-                               language=request.get(constants.LANGUAGE), speech_metadata=speech_metadata)
+                               language=request.get(constants.LANGUAGE, "en"), speech_metadata=speech_metadata)
 
         return tts_entity
 
@@ -44,3 +45,27 @@ class TTSService:
                                  privilege_type=request.get(constants.PRIVILEGE_TYPE))
 
         return user_entity
+
+    def voice_preview(self, speaker_id, name):
+        tts_request = {
+            "speaker_id": speaker_id,
+            "text": "Hello! My name is {}. I am one of the voices of vaux. You can use me for your text to speech tasks"
+            .format(name)
+        }
+        tts_entity = self.to_tts_entity(tts_request)
+        audio_file = self.tts_core.voice_preview(tts_entity)
+        audio_file.seek(0)
+
+        # Send the audio data as a response with the appropriate MIME type
+        return send_file(
+            audio_file,
+            mimetype='audio/wav',  # You can use 'audio/mpeg' for MP3 or other suitable types
+            as_attachment=True,
+            download_name=f'{name}.wav'  # Customize the filename as needed
+        )
+
+    def list_all_speakers(self):
+        return self.tts_core.list_all_speakers()
+
+    def create_speakers(self, speaker_details):
+        return self.tts_core.create_speakers(speaker_details)

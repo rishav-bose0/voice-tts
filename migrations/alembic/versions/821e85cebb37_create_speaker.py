@@ -17,9 +17,9 @@ down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
-emotions_type = 'emotions_type'
-EmotionEnum = ENUM('happy', 'sad', 'angry', 'neutral', name='emotion_enum')
-EmotionArray = ARRAY(EmotionEnum, dimensions=1)
+# emotions_type = 'emotions_type'
+# EmotionEnum = ENUM('happy', 'sad', 'angry', 'neutral', name='emotion_enum')
+# EmotionArray = ARRAY(EmotionEnum, dimensions=1)
 
 
 def upgrade() -> None:
@@ -27,7 +27,10 @@ def upgrade() -> None:
         'speaker_details',
         sa.Column('id', sa.String(length=14), primary_key=True),
         sa.Column('name', sa.String(50), nullable=False),
-        sa.Column('emotions', EmotionArray),
+        sa.Column('gender', sa.String(2), nullable=False),
+        sa.Column('language', sa.String(100), nullable=False),
+        sa.Column('emotions', sa.ARRAY(sa.String(100))),
+        sa.Column('model_name', sa.String(100), nullable=False),
         sa.Column('created_at', sa.Integer(), nullable=False),
         sa.Column('updated_at', sa.Integer(), nullable=False),
         sa.Column('deleted_at', sa.Integer(), nullable=True),
