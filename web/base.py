@@ -1,10 +1,9 @@
 from flask import Blueprint, Flask
+from flask_cors import CORS
 from flask_restx import Api
 
-from insert import run_script
-from web.routing import routes
 from common.model import db
-from flask_cors import CORS
+from web.routing import routes
 
 api_bp = Blueprint('api', __name__)
 api = Api(api_bp, version='1.0', title='TTS Api', description='TTS Web Api')
