@@ -53,5 +53,5 @@ class AwsVitsModel:
                                                    file_name)
             return True, s3_url_link, ""
         except Exception as e:
-            logger.info("Upload to s3 failed with exception {}".format(e))
+            logger.error("Upload to s3 failed with exception {}".format(e))
             return False, None, e.__str__()
