@@ -1,6 +1,4 @@
 import numpy as np
-from flask import Response
-from scipy.io import wavfile
 
 import constants
 from core import TTSCore
@@ -28,18 +26,7 @@ class TTSService:
         for audio_file in audio_files:
             combined_audio = np.concatenate((combined_audio, audio_file), axis=0)
 
-        audio_bytes = combined_audio.tobytes()
-
-        # Create a Flask Response with the audio data and the appropriate content type
-        Response(audio_bytes, content_type=constants.AUDIO_FORMAT)
-
-        # Specify the file path where you want to save the WAV file
-        file_path = '../tmp/output_audio2.wav'
-
-        # Scale the audio data to the appropriate range (-32768 to 32767 for 16-bit PCM)
-        # Save the audio data as a WAV file
-        wavfile.write(file_path, 22050, combined_audio)
-        return True
+        return self.tts_core.save_file_and_upload(combined_audio)
 
     def to_tts_entity(self, request) -> TTSEntity:
         speech_metadata = SpeechMetadata(

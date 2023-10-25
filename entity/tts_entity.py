@@ -31,14 +31,14 @@ class SpeechMetadata:
         self.emotion = emotion
 
     def to_JSON(self):
-        return json.dumps(self.__dict__)
+        return json.dumps(self, default=lambda o: o.__dict__)
 
 
 @dataclass
 class TTSEntity(BaseEntity):
     user_id: str = field(default_factory=str)
     speaker_id: str = field(default_factory=str)
-    speech_metadata: SpeechMetadata = field(default_factory=lambda: SpeechMetadata())
+    speech_metadata: SpeechMetadata = field(default_factory=SpeechMetadata)
     text: str = field(default_factory=str)
     language: str = field(default_factory=str)
 
@@ -84,7 +84,7 @@ class TTSEntity(BaseEntity):
         self.id = p_id
 
     def to_JSON(self):
-        return self.__dict__
+        return json.dumps(self, default=lambda o: o.__dict__)
 
     def set_speech_metadata_from_JSON(self, speech_metadata_JSON):
         if speech_metadata_JSON is None:

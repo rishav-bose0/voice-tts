@@ -26,4 +26,3 @@ def create_app(config=None):
     routes.add_tts_api_routes(api)
     app.register_blueprint(api_bp, url_prefix='/api/v1')
     return app
-
