@@ -16,7 +16,14 @@ LANGUAGE = "language"
 
 # User request constants
 EMAIL = "email"
+FIRST_NAME = "first_name"
+LAST_NAME = "last_name"
+PASSWORD = "password"
+TOKEN = "token"
 PRIVILEGE_TYPE = "privilege_type"
 
 AUDIO_FORMAT = "audio/wav"
 PRETRAINED_VCTK_PATH = "../vits/pretrained_vctk_tts.pth"
+
+JWT_EXPIRY_TIME = "jwt_expiry_time"
+JWT_SECRET = "jwt_secret"

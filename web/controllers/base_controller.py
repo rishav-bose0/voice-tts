@@ -24,23 +24,5 @@ class BaseController(Resource):
         return request.args
 
     @staticmethod
-    def get_request_input(id=None):
-
-        # request_input = {}
-        #
-        # request_json = request.get_json()
-        # if request_json:
-        #     request_input.update(request_json)
-        #
-        # request_values = request.values
-        # if request_values:
-        #     request_input.update(request_values)
-        #
-        # request_files = request.files
-        # if request_files:
-        #     request_input.update(request_files)
-        #
-        # if id:
-        #     request_input.update(id=id)
-
+    def get_request_input():
         return request.json

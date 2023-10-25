@@ -11,7 +11,6 @@ from repository.speaker_repository import SpeakerRepository
 from repository.user_repository import UserRepository
 from logger import logger
 from aws.aws_vits import AwsVitsModel
-from scipy.io import wavfile
 
 
 class TTSCore:
@@ -25,44 +24,85 @@ class TTSCore:
 
     def process_tts(self, tts_entity: TTSEntity):
         audio = self.tts_model.run_tts(tts_entity)
+        logger.info("Received Audio")
         tts_aggregate = self.tts_api_factory.build(tts_entity)
         self.tts_repo.create_tts_aggregate(tts_aggregate=tts_aggregate)
         logger.info("TTS task successful")
         return audio
 
     def voice_preview(self, tts_entity: TTSEntity):
-        # wav_file_path = '/Users/rishavbose/PycharmProjects/voiceai/tmp/output_audio1.wav'
-
-        # Read the WAV file using scipy
-        # sample_rate, audio = wavfile.read(wav_file_path)
-        # audio =
         audio = self.tts_model.run_tts(tts_entity)
         audio_file = io.BytesIO()
         sf.write(audio_file, audio, 22050, format='WAV')
         return audio_file
 
-    def add_user(self, user_entity: UserEntity):
+    def signup_user(self, user_entity: UserEntity):
+        """
+        Function to add user details to database and create jwt token.
+        @param user_entity
+
+        @return user_id, jwt token and Error (If any)
+        """
+        token = utils.create_jwt_token(user_entity.to_JSON())
         user_aggregate = self.user_api_factory.build(user_entity)
-        user_id = self.user_repo.create_user_aggregate(user_aggregate=user_aggregate)
-        logger.info("User Creation successful")
-        return user_id
+        user_entity.set_token(token)
+        try:
+            user_id = self.user_repo.create_user_aggregate(user_aggregate=user_aggregate)
+            logger.info("User Creation successful")
+            return user_id, token, None
+        except Exception as e:
+            return "", "", e.__str__()
+
+    def login_user(self, email_id, password):
+        """
+        Function returns user_id and token if credentials match
+        @param email_id: user email
+        @param password: user password
+
+        @Return user_id, token, Error (if any).
+        """
+        try:
+            user_entity = self.user_repo.load_user_aggregate_by_details(email=email_id, password=password)
+            if user_entity is None:
+                logger.info("No user exists with emailId {} and password {}".format(email_id, password))
+                return "", "", None
+
+            if utils.is_token_valid(user_entity.get_token()):
+                return user_entity.get_id().value(), user_entity.get_token(), None
+
+            token = utils.create_jwt_token(user_entity.to_JSON())
+            user_entity.set_token(token)
+            user_aggregate = self.user_api_factory.build(user_entity)
+            user_id = self.user_repo.update_user_aggregate(user_aggregate=user_aggregate)
+            return user_id, token, None
+        except Exception as e:
+            return "", "", e.__str__()
 
     def save_file_and_upload(self, audio):
         # Specify the file path where you want to save the WAV file
         file_path = utils.save_audio_file(audio)
         print("File path is {}".format(file_path))
-        is_success = self.tts_model.upload_to_s3(file_path)
+        is_success, s3_link, err = self.tts_model.upload_to_s3(file_path)
         utils.delete_file(file_path)
-        return is_success
+        return is_success, s3_link, err
 
-    def list_all_speakers(self) -> []:
+    def list_all_speakers(self, speaker_ids) -> []:
+        """
+        Returns a list of all speakers present in db. If speaker_ids is none, will return all.
+        @param speaker_ids
+        """
         speaker_details = []
-        speaker_entities = self.speaker_repo.list_all_speakers()
+        if speaker_ids is None:
+            speaker_entities = self.speaker_repo.list_all_speakers()
+        else:
+            speaker_entities = self.speaker_repo.list_sample_speakers(speaker_ids=speaker_ids)
+
         for speaker_entity in speaker_entities:
             speaker_info = {
                 "Name": speaker_entity.get_name(),
                 "Gender": speaker_entity.get_gender(),
-                "Id": speaker_entity.get_id()
+                "Id": speaker_entity.get_id(),
+                "Lang": speaker_entity.get_language()
             }
             speaker_details.append(speaker_info)
 
@@ -84,3 +124,13 @@ class TTSCore:
             self.speaker_repo.create_speaker_aggregate(speaker_entity)
         logger.info("Success")
         return True
+
+    def get_user_details(self, user_id) -> UserEntity:
+        """
+        Function returns all details about a particular user
+        @param user_id
+
+        @returns UserEntity
+        """
+        return self.user_repo.load_user_aggregate(user_id=user_id)
+

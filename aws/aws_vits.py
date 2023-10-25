@@ -38,11 +38,20 @@ class AwsVitsModel:
         # ipd.display(ipd.Audio(audio_np, rate=aws_const.SAMPLE_RATE, normalize=False))
         return audio_np
 
-    def upload_to_s3(self, file_path) -> bool:
+    def upload_to_s3(self, file_path) -> (bool, str, str):
+        """
+        Function to upload file to s3.
+        @param file_path
+        @Return is_upload_success, s3_link and Error (if any).
+        """
         try:
             file_name = file_path.split("/")[2]
-            self.s3.upload_file(file_path, aws_const.AWS_BUCKET_NAME, "audio_files/{}".format(file_name))
-            return True
+            self.s3.upload_file(file_path, app_config[aws_const.AWS_BUCKET_NAME],
+                                "audio_files/{}".format(file_name))
+            s3_url_link = aws_const.S3_LINK.format(app_config[aws_const.AWS_BUCKET_NAME],
+                                                   app_config[aws_const.AWS_REGION],
+                                                   file_name)
+            return True, s3_url_link, ""
         except Exception as e:
-            logger.info("Upload to s3 failed with exception {}".format(e))
-            return False
+            logger.error("Upload to s3 failed with exception {}".format(e))
+            return False, None, e.__str__()
