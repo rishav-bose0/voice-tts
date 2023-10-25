@@ -11,9 +11,18 @@ class TTSService:
     def __init__(self):
         self.tts_core = TTSCore()
 
-    def add_user(self, request, header):
+    def signup_user(self, request, header):
         user_entity = self.to_user_entity(request)
-        return self.tts_core.add_user(user_entity=user_entity)
+        return self.tts_core.signup_user(user_entity=user_entity)
+
+    def login_user(self, request, header):
+        email_id = request.get(constants.EMAIL, "")
+        password = request.get(constants.PASSWORD, "")
+        return self.tts_core.login_user(email_id=email_id, password=password)
+
+    def get_user_details(self, user_id):
+        return self.tts_core.get_user_details(user_id)
+
 
     def process_tts(self, request, header):
         audio_files = []
@@ -41,7 +50,9 @@ class TTSService:
         return tts_entity
 
     def to_user_entity(self, request) -> UserEntity:
-        user_entity = UserEntity(email=request.get(constants.EMAIL),
+        user_entity = UserEntity(first_name=request.get(constants.FIRST_NAME),
+                                 last_name=request.get(constants.LAST_NAME),
+                                 password=request.get(constants.PASSWORD), email=request.get(constants.EMAIL),
                                  privilege_type=request.get(constants.PRIVILEGE_TYPE))
 
         return user_entity
@@ -65,7 +76,11 @@ class TTSService:
         )
 
     def list_all_speakers(self):
-        return self.tts_core.list_all_speakers()
+        return self.tts_core.list_all_speakers(speaker_ids=None)
+
+    def list_sample_speakers(self):
+        speaker_ids = ["55", "59", "60", "88", "102", "103"]
+        return self.tts_core.list_all_speakers(speaker_ids=speaker_ids)
 
     def create_speakers(self, speaker_details):
         return self.tts_core.create_speakers(speaker_details)

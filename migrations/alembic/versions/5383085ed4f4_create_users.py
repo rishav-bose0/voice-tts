@@ -22,12 +22,17 @@ def upgrade() -> None:
     op.create_table(
         'user_details',
         sa.Column('id', sa.String(length=14), primary_key=True),
+        sa.Column('first_name', sa.String(50), nullable=False),
+        sa.Column('last_name', sa.String(50), nullable=False),
+        sa.Column('password', sa.String(50), nullable=False),
         sa.Column('email', sa.String(50), nullable=False),
         sa.Column('privilege_type', sa.Enum('free', 'subscribed', name='privilege_type'), nullable=False),
+        sa.Column('token', sa.String(500), nullable=False),
         sa.Column('created_at', sa.Integer(), nullable=False),
         sa.Column('updated_at', sa.Integer(), nullable=False),
         sa.Column('deleted_at', sa.Integer(), nullable=True),
         sa.PrimaryKeyConstraint('id'),
+        sa.UniqueConstraint('email', name='uq_email')
     )
 
 

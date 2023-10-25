@@ -1,3 +1,5 @@
+import json
+
 from common.entity.base_entity import BaseEntity
 from dataclasses import dataclass
 from dataclasses import field
@@ -9,6 +11,10 @@ from common.utils.rzp_id import RzpID
 class UserEntity(BaseEntity):
     email: str = field(default_factory=str)
     privilege_type: str = field(default_factory=str)
+    first_name: str = field(default_factory=str)
+    last_name: str = field(default_factory=str)
+    password: str = field(default_factory=str)
+    token: str = field(default_factory=str)
 
     def get_id(self):
         return self.id
@@ -22,6 +28,30 @@ class UserEntity(BaseEntity):
     def set_email(self, email):
         self.email = email
 
+    def get_first_name(self):
+        return self.first_name
+
+    def set_first_name(self, first_name):
+        self.first_name = first_name
+
+    def get_last_name(self):
+        return self.last_name
+
+    def set_last_name(self, last_name):
+        self.last_name = last_name
+
+    def get_password(self):
+        return self.password
+
+    def set_password(self, password):
+        self.password = password
+
+    def get_token(self):
+        return self.token
+
+    def set_token(self, token):
+        self.token = token
+
     def get_privilege_type(self):
         return self.privilege_type
 
@@ -34,4 +64,4 @@ class UserEntity(BaseEntity):
         self.id = p_id
 
     def to_JSON(self):
-        return self.__dict__
+        return json.dumps(self, default=lambda o: o.__dict__)

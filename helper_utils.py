@@ -1,7 +1,13 @@
 import random
 import os
 from scipy.io import wavfile
+
+from config import app_config
+from constants import JWT_EXPIRY_TIME, JWT_SECRET
 from logger import logger
+import jwt
+from datetime import datetime, timedelta
+from http import HTTPStatus
 
 
 def save_audio_file(audio, path="/tmp/"):
@@ -23,3 +29,26 @@ def delete_file(file_path):
     else:
         # If it fails, inform the user.
         logger.info("Error: {} file not found".format(file_path))
+
+
+def create_jwt_token(payload_details: dict):
+    payload_data = {
+        "payload": payload_details,
+        "exp": datetime.utcnow() + timedelta(days=app_config[JWT_EXPIRY_TIME])
+    }
+    my_secret = app_config[JWT_SECRET]
+    token = jwt.encode(
+        payload=payload_data,
+        key=my_secret
+    )
+
+    return token
+
+
+def is_token_valid(token):
+    try:
+        jwt.decode(token, key=app_config[JWT_SECRET], algorithms=['HS256', ])
+        return True
+    except Exception as e:
+        logger.info("Exception occured with error {}".format(e))
+        return False
