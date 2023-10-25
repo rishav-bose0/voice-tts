@@ -32,6 +32,12 @@ def delete_file(file_path):
 
 
 def create_jwt_token(payload_details: dict):
+    """
+    Function to create JWT Token with expiry time.
+    @param payload_details: Dict containing payload
+
+    @Return token.
+    """
     payload_data = {
         "payload": payload_details,
         "exp": datetime.utcnow() + timedelta(days=app_config[JWT_EXPIRY_TIME])
@@ -46,6 +52,12 @@ def create_jwt_token(payload_details: dict):
 
 
 def is_token_valid(token):
+    """
+    Function to check token validity
+    @param token
+
+    Returns True/False based on token validity
+    """
     try:
         jwt.decode(token, key=app_config[JWT_SECRET], algorithms=['HS256', ])
         return True

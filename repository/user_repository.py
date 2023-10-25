@@ -14,7 +14,7 @@ class UserRepository(base.Base):
     def create_user_aggregate(self, user_aggregate: UserAggregate):
         """
         creates model entry into database table user_details
-        :param user_aggregate:
+        @param user_aggregate:
         :return: False, errors in case of any exception. Else commits to db and returns None.
         """
 
@@ -43,7 +43,7 @@ class UserRepository(base.Base):
     def load_user_aggregate(self, user_id) -> UserEntity:
         """
         loads the user_aggregate with user_id
-        :param user_id:
+        @param user_id:
         :return: userAggregate
         """
         try:
@@ -61,8 +61,8 @@ class UserRepository(base.Base):
     def load_user_aggregate_by_details(self, email, password) -> UserEntity:
         """
         loads the user_aggregate with user_id
-        :param email:
-        :param password:
+        @param email:
+        @param password:
         :return: userAggregate
         """
         try:

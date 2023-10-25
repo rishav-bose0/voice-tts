@@ -22,7 +22,7 @@ class Base:
     def commit(obj):
         """
         commits the obj to database
-        :param obj:
+        @param obj:
         :return:
         """
         db.session.add(obj)
@@ -33,7 +33,7 @@ class Base:
     def bulk_commit(objs):
         """
         bulk commit the list of objects to database.
-        :param objs:
+        @param objs:
         :return:
         """
         for obj in objs:

@@ -23,9 +23,9 @@ class BaseLogger(object):
 
     def use_local_logger(self, should_use, logger_name="local"):
         """
-        :param should_use: Set to true to use local log instance
+        @param should_use: Set to true to use local log instance
         and false to use global singleton
-        :param logger_name: Logger name
+        @param logger_name: Logger name
         """
         self._use_local_logger = should_use
         self._logger_name = logger_name

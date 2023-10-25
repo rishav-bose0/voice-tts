@@ -17,7 +17,7 @@ class UserDetails(base.Base, db.Model):
     def __init__(self, entity: user_entity.UserEntity):
         """
         constructor with UserEntity as param
-        :param entity:
+        @param entity:
         """
         super().__init__()
         self.id = entity.get_id().value()

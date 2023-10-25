@@ -37,7 +37,12 @@ class TTSCore:
         return audio_file
 
     def signup_user(self, user_entity: UserEntity):
-        # create JWT Token
+        """
+        Function to add user details to database and create jwt token.
+        @param user_entity
+
+        @return user_id, jwt token and Error (If any)
+        """
         token = utils.create_jwt_token(user_entity.to_JSON())
         user_aggregate = self.user_api_factory.build(user_entity)
         user_entity.set_token(token)
@@ -51,10 +56,10 @@ class TTSCore:
     def login_user(self, email_id, password):
         """
         Function returns user_id and token if credentials match
-        :params email_id: user email
-        :params password: user password
+        @param email_id: user email
+        @param password: user password
 
-        Returns: user_id, token, Error (if any).
+        @Return user_id, token, Error (if any).
         """
         try:
             user_entity = self.user_repo.load_user_aggregate_by_details(email=email_id, password=password)
@@ -82,6 +87,10 @@ class TTSCore:
         return is_success, s3_link, err
 
     def list_all_speakers(self, speaker_ids) -> []:
+        """
+        Returns a list of all speakers present in db. If speaker_ids is none, will return all.
+        @param speaker_ids
+        """
         speaker_details = []
         if speaker_ids is None:
             speaker_entities = self.speaker_repo.list_all_speakers()
@@ -117,5 +126,11 @@ class TTSCore:
         return True
 
     def get_user_details(self, user_id) -> UserEntity:
+        """
+        Function returns all details about a particular user
+        @param user_id
+
+        @returns UserEntity
+        """
         return self.user_repo.load_user_aggregate(user_id=user_id)
 

@@ -20,7 +20,7 @@ class TTSDetails(base.Base, db.Model):
     def __init__(self, entity: tts_entity.TTSEntity):
         """
         constructor with TTSEntity as param
-        :param entity:
+        @param entity:
         """
         super().__init__()
         self.id = entity.get_id().value()

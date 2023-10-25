@@ -13,7 +13,7 @@ class TTSRepository(base.Base):
     def create_tts_aggregate(self, tts_aggregate: TTSAggregate):
         """
         creates model entry into database table tts_details
-        :param tts_aggregate:
+        @param tts_aggregate:
         :return: False, errors in case of any exception. Else commits to db and returns None.
         """
 
@@ -29,7 +29,7 @@ class TTSRepository(base.Base):
     def load_tts_aggregate(self, tts_id) -> TTSAggregate:
         """
         loads the tts_aggregate with tts_id
-        :param tts_id:
+        @param tts_id:
         :return: ttsAggregate
         """
         try:

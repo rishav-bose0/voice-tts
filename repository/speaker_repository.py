@@ -13,8 +13,8 @@ class SpeakerRepository(base.Base):
     def create_speaker_aggregate(self, speaker_entity: SpeakerEntity):
         """
         creates model entry into database table speaker_details
-        :param speaker_entity:
-        :param speaker_aggregate:
+        @param speaker_entity:
+        @param speaker_aggregate:
         :return: False, errors in case of any exception. Else commits to db and returns None.
         """
 
@@ -29,7 +29,7 @@ class SpeakerRepository(base.Base):
     def load_speaker_aggregate(self, speaker_id) -> SpeakerEntity:
         """
         loads the speaker_aggregate with speaker_id
-        :param speaker_id:
+        @param speaker_id:
         :return: speakerAggregate
         """
         try:

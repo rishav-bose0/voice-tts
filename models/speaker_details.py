@@ -17,7 +17,7 @@ class SpeakerDetails(base.Base, db.Model):
     def __init__(self, entity: speaker_entity.SpeakerEntity):
         """
         constructor with SpeakerEntity as param
-        :param entity:
+        @param entity:
         """
         super().__init__()
         self.id = entity.get_id()
