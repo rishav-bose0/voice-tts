@@ -1,7 +1,9 @@
 from flask import Blueprint, Flask
+from flask_cors import CORS
 from flask_restx import Api
-from web.routing import routes
+
 from common.model import db
+from web.routing import routes
 
 api_bp = Blueprint('api', __name__)
 api = Api(api_bp, version='1.0', title='TTS Api', description='TTS Web Api')
@@ -19,10 +21,12 @@ def set_db_config(config):
 
 def create_app(config=None):
     app = Flask(__name__)
+    CORS(app)
     set_db_config(config)
     app.config.update(config or {})
     db.init_app(app)
     routes.add_default_routes(api)
     routes.add_tts_api_routes(api)
     app.register_blueprint(api_bp, url_prefix='/api/v1')
+
     return app

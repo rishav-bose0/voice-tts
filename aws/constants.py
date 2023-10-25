@@ -1,5 +1,5 @@
 JSON_APPLICATION_TYPE = "application/json"
-ENDPOINT_NAME = "voice-tts-2023-10-09-10-28-33-130"
+ENDPOINT_NAME = "voice-tts-2023-10-12-08-41-22-863"
 RESPONSE_KEY = "Response"
 SAMPLE_RATE = 22050
 AWS_KEY_ID = "aws_access_key_id"
