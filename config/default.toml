@@ -24,10 +24,14 @@ POOL_SIZE = 5
 MAX_OVERFLOW = 10
 
 #AWS ACCESS KEYS
-aws_access_key_id="AKIAW22X43X22B3CSB5J"
-aws_secret_access_key="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"
-aws_region_name = "us-east-2"
-aws_bucket_name = "sagemaker-us-east-2-469946392053"
+aws_access_key_id = "AKIAW22X43X22B3CSB5J"
+aws_secret_access_key = "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"
+aws_region_name_tts = 'us-east-2'
+aws_bucket_name_tts = "sagemaker-us-east-2-469946392053"
+
+aws_region_name = "ap-south-1"
+#aws_bucket_name = "sagemaker-us-east-2-469946392053"
+aws_bucket_name = "voaux"
 
 jwt_expiry_time = 7 # In days
 jwt_secret = "vaux-0199-010"

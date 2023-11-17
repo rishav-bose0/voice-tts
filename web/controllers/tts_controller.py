@@ -1,20 +1,22 @@
+import csv
+
 from service import TTSService
 from web.controllers.base_controller import BaseController
-from web.routing.auth import authenticate
+from web.routing.auth import authenticate, conditional_decorator
 
 
 class ProcessTTS(BaseController):
-    method_decorators = [authenticate]
+    method_decorators = [conditional_decorator]
 
     def post(self):
         request = BaseController.get_request_input()
         headers = BaseController.get_headers()
-        status, s3_link, err = TTSService().process_tts(request, headers)
+        status, speech_s3_link, err = TTSService().process_tts(request, headers)
         response = {}
-        if err != "":
+        if err is not None:
             response["error"] = err
         else:
-            response["s3_link"] = s3_link
+            response["speech_s3_link"] = speech_s3_link
         response["status"] = status
 
         return response, 200
@@ -43,12 +45,13 @@ class LoginUser(BaseController):
         user_id, token, err = TTSService().login_user(request, headers)
         response = {}
         status_code = 200
-        if err is not None:
+        if err is not None and err != "Invalid email or password":
             response["Error"] = err
             status_code = 500
         else:
             if user_id == "":
-                status_code = 400
+                status_code = 401
+                response["Error"] = err
             else:
                 response["Id"] = user_id
                 response["Token"] = token
@@ -56,11 +59,41 @@ class LoginUser(BaseController):
         return response, status_code
 
 
+class CreateSpeakers(BaseController):
+    def post(self):
+        data_dict = {}
+
+        # Open the CSV file for reading
+        with open('/Users/rishavbose/PycharmProjects/voiceai/speaker_dets.csv', mode='r') as csv_file:
+            csv_reader = csv.DictReader(csv_file)  # Use DictReader for easy column access
+
+            # Iterate through the rows in the CSV file
+            for row in csv_reader:
+                # Extract data from each row
+                id_value = row['Id']
+                name = row['Name']
+                gender = row['Gender']
+                image_link = row['image_link']
+                voice_preview_link = row['voice_preview_link']
+                # Add the data to the dictionary with Id as the key
+                data_dict[id_value] = {
+                    'id': id_value,
+                    'name': name,
+                    'gender': gender,
+                    'image_link': image_link,
+                    'voice_preview_link': voice_preview_link
+                }
+            return TTSService().create_speakers(list(data_dict.values()))
+
+
 class GetUserDetails(BaseController):
     method_decorators = [authenticate]
 
     def get(self, user_id):
         user_details = TTSService().get_user_details(user_id=user_id)
+        if user_details is None:
+            return {}, 200
+
         return {
             "id": user_details.get_id().value(),
             "first_name": user_details.get_first_name(),
@@ -71,10 +104,16 @@ class GetUserDetails(BaseController):
 
 
 class VoicePreview(BaseController):
-    method_decorators = [authenticate]
 
     def get(self, speaker_id, name):
-        return TTSService().voice_preview(speaker_id, name)
+        preview_link = TTSService().voice_preview(speaker_id, name)
+        if preview_link is None:
+            return {"Status": False}, 500
+
+        return {
+            "Preview_link": preview_link,
+            "Status": True
+        }, 200
 
 
 class ListVoices(BaseController):
@@ -87,3 +126,52 @@ class ListVoices(BaseController):
 class ListSampleVoices(BaseController):
     def get(self):
         return TTSService().list_sample_speakers()
+
+
+class CreateProject(BaseController):
+    method_decorators = [authenticate]
+
+    def post(self):
+        request = BaseController.get_request_input()
+        proj_id = TTSService().create_project(request)
+        if proj_id is None:
+            return {}, 500
+
+        return {"Id": proj_id}, 200
+
+
+class GetProjectDetails(BaseController):
+    method_decorators = [authenticate]
+
+    def get(self, project_id):
+        project_details, err = TTSService().get_project_details(project_id)
+        if err is not None:
+            return {}, 500
+
+        return {"details": project_details}, 200
+
+
+class ListAllProjectsForUser(BaseController):
+    method_decorators = [authenticate]
+
+    def get(self, user_id):
+        project_details, err = TTSService().list_all_projects_for_user(user_id)
+        if err is not None:
+            return {}, 500
+
+        return project_details, 200
+
+
+class UpdateUserDetails(BaseController):
+    method_decorators = [authenticate]
+
+    def put(self):
+        request = BaseController.get_request_input()
+        headers = BaseController.get_headers()
+
+        is_updated, err = TTSService().update_user_details(request)
+        response = {"Status": is_updated}
+        if err != "":
+            response["error"] = err
+
+        return response, 200

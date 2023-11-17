@@ -1,9 +1,8 @@
 import json
-
-from common.entity.base_entity import BaseEntity
 from dataclasses import dataclass
 from dataclasses import field
 
+from common.entity.base_entity import BaseEntity
 from common.utils.rzp_id import RzpID
 
 
@@ -62,6 +61,10 @@ class UserEntity(BaseEntity):
         p_id = RzpID()
         p_id.create()
         self.id = p_id
+
+    def is_empty(self):
+        return (not self.email and self.email == "") or (not self.first_name and self.first_name == "") or \
+            (not self.last_name and self.last_name == "") or (not self.password and self.password == "")
 
     def to_JSON(self):
         return json.dumps(self, default=lambda o: o.__dict__)

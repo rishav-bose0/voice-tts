@@ -1,8 +1,5 @@
-from common.entity.base_entity import BaseEntity
 from dataclasses import dataclass
 from dataclasses import field
-
-from common.utils.rzp_id import RzpID
 
 
 @dataclass
@@ -12,6 +9,9 @@ class SpeakerEntity:
     gender: str = field(default_factory=str)
     model_name: str = field(default_factory=str)
     language: str = field(default_factory=str)
+    country: str = field(default_factory=str)
+    image_link: str = field(default_factory=str)
+    voice_preview_link: str = field(default_factory=str)
     emotions: list[str] = field(default_factory=list[str])
 
     def get_id(self):
@@ -25,6 +25,18 @@ class SpeakerEntity:
 
     def set_name(self, name):
         self.name = name
+
+    def get_image_link(self):
+        return self.image_link
+
+    def set_image_link(self, image_link):
+        self.image_link = image_link
+
+    def get_voice_preview_link(self):
+        return self.voice_preview_link
+
+    def set_voice_preview_link(self, voice_preview_link):
+        self.voice_preview_link = voice_preview_link
 
     def get_gender(self):
         return self.gender
@@ -43,6 +55,12 @@ class SpeakerEntity:
 
     def set_language(self, language):
         self.language = language
+
+    def get_country(self):
+        return self.country
+
+    def set_country(self, country):
+        self.country = country
 
     def get_emotions(self):
         return self.emotions

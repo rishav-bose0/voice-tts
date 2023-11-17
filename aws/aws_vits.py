@@ -1,5 +1,6 @@
-import boto3
 import json
+
+import boto3
 import numpy as np
 
 import aws.constants as aws_const
@@ -10,7 +11,7 @@ from logger import logger
 
 class AwsVitsModel:
     def __init__(self):
-        self.sagemaker_runtime = boto3.client("sagemaker-runtime", region_name=app_config[aws_const.AWS_REGION],
+        self.sagemaker_runtime = boto3.client("sagemaker-runtime", region_name=app_config[aws_const.AWS_REGION_TTS],
                                               aws_access_key_id=app_config[aws_const.AWS_KEY_ID],
                                               aws_secret_access_key=app_config[aws_const.AWS_ACCESS_KEY])
         self.s3 = boto3.client('s3', region_name=app_config[aws_const.AWS_REGION],
@@ -20,8 +21,10 @@ class AwsVitsModel:
     def run_tts(self, tts_entity: TTSEntity):
         request_body = {
             "text": tts_entity.get_text(),
-            "speaker_id": tts_entity.get_speaker_id(),
-            "duration": tts_entity.get_speech_metadata().get_duration()
+            "speaker_id": tts_entity.get_speech_metadata().get_speaker_id(),
+            "duration": tts_entity.get_speech_metadata().get_duration(),
+            "speaker_name": "ind_girl",  # TODO REmove
+            "tts_type": "api_fast"  # TODO REmove
         }
         request_string = json.dumps(request_body).encode()
         try:
@@ -47,11 +50,12 @@ class AwsVitsModel:
         try:
             file_name = file_path.split("/")[2]
             self.s3.upload_file(file_path, app_config[aws_const.AWS_BUCKET_NAME],
-                                "audio_files/{}".format(file_name))
+                                "audio_files/{}".format(file_name),
+                                ExtraArgs={'ContentType': 'audio/wav', 'ContentDisposition': 'attachment'})
             s3_url_link = aws_const.S3_LINK.format(app_config[aws_const.AWS_BUCKET_NAME],
                                                    app_config[aws_const.AWS_REGION],
                                                    file_name)
-            return True, s3_url_link, ""
+            return True, s3_url_link, None
         except Exception as e:
             logger.error("Upload to s3 failed with exception {}".format(e))
-            return False, None, e.__str__()
+            return False, "", e.__str__()

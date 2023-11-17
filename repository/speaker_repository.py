@@ -1,6 +1,7 @@
+from aggregate import SpeakerAggregate
 from common.repository import base
-from logger import logger
 from entity.speaker_entity import SpeakerEntity
+from logger import logger
 from models.speaker_details import SpeakerDetails
 
 
@@ -14,7 +15,6 @@ class SpeakerRepository(base.Base):
         """
         creates model entry into database table speaker_details
         @param speaker_entity:
-        @param speaker_aggregate:
         :return: False, errors in case of any exception. Else commits to db and returns None.
         """
 
@@ -26,13 +26,14 @@ class SpeakerRepository(base.Base):
             raise e
         return None
 
-    def load_speaker_aggregate(self, speaker_id) -> SpeakerEntity:
+    def load_speaker_aggregate(self, speaker_id) -> SpeakerAggregate:
         """
         loads the speaker_aggregate with speaker_id
         @param speaker_id:
         :return: speakerAggregate
         """
         try:
+            speaker_id = str(speaker_id)
             speaker_details_model = self.model.query.filter(self.model.id == speaker_id).first()
         except Exception as e:
             logger.error(e)
@@ -42,7 +43,9 @@ class SpeakerRepository(base.Base):
         if speaker_details_model is None:
             return None
         speaker_entity = speaker_details_model.to_entity()
-        return speaker_entity
+        speaker_aggregate = SpeakerAggregate()
+        speaker_aggregate.set_speaker_entity(speaker_entity)
+        return speaker_aggregate
 
     def list_all_speakers(self) -> [SpeakerEntity]:
         try:
