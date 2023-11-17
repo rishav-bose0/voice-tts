@@ -1,5 +1,5 @@
-from common.model import db
 from common.model import base
+from common.model import db
 from common.utils.rzp_id import RzpID
 from entity import user_entity
 
@@ -10,8 +10,8 @@ class UserDetails(base.Base, db.Model):
     email = db.Column(db.String(100), nullable=False)
     first_name = db.Column(db.String(100), nullable=False)
     last_name = db.Column(db.String(100), nullable=False)
-    password = db.Column(db.String(100), nullable=False)
-    token = db.Column(db.String(500), nullable=False)
+    password = db.Column(db.String(100), nullable=True)
+    token = db.Column(db.String(2000), nullable=False)
     privilege_type = db.Column(db.String(50), nullable=False)
 
     def __init__(self, entity: user_entity.UserEntity):
@@ -45,9 +45,8 @@ class UserDetails(base.Base, db.Model):
         return entity
 
     def update_data(self, user_detail):
-        self.email = user_detail.email
-        self.first_name = user_detail.first_name
-        self.last_name = user_detail.last_name
-        self.password = user_detail.password
-        self.token = user_detail.token
-        self.privilege_type = user_detail.privilege_type
+        self.first_name = self.first_name if user_detail.first_name is None else user_detail.first_name
+        self.last_name = self.last_name if user_detail.last_name is None else user_detail.last_name
+        self.password = self.password if user_detail.password is None else user_detail.password
+        self.privilege_type = self.privilege_type if user_detail.privilege_type is None else user_detail.privilege_type
+        self.token = self.token if user_detail.token is None else user_detail.token

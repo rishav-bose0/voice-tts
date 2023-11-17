@@ -12,6 +12,8 @@ EMOTION = "emotion"
 DURATION = "duration"
 SPEAKER_ID = "speaker_id"
 TEXT = "text"
+PROJECT_ID = "project_id"
+BLOCK_NUMBER = "block_number"
 LANGUAGE = "language"
 
 # User request constants
@@ -27,3 +29,13 @@ PRETRAINED_VCTK_PATH = "../vits/pretrained_vctk_tts.pth"
 
 JWT_EXPIRY_TIME = "jwt_expiry_time"
 JWT_SECRET = "jwt_secret"
+
+GOOGLE_OAUTH_USER_INFO_URL = "https://www.googleapis.com/oauth2/v3/userinfo"
+
+ERROR_DESCRIPTION = "error_description"
+
+# Project Details
+BLOCK_DETAILS = "block_details"
+TTS_DETAILS = "tts_details"
+SPEAKER_DETAILS = "speaker_details"
+NAME = "name"

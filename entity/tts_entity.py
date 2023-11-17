@@ -11,6 +11,7 @@ class SpeechMetadata:
     pitch: str = field(default_factory=str)
     duration: str = field(default_factory=str)
     emotion: str = field(default_factory=str)
+    speaker_id: str = field(default_factory=str)
 
     def get_pitch(self):
         return self.pitch
@@ -30,17 +31,24 @@ class SpeechMetadata:
     def set_emotion(self, emotion):
         self.emotion = emotion
 
+    def get_speaker_id(self):
+        return self.speaker_id
+
+    def set_speaker_id(self, speaker_id):
+        self.speaker_id = speaker_id
+
     def to_JSON(self):
         return json.dumps(self, default=lambda o: o.__dict__)
 
 
 @dataclass
 class TTSEntity(BaseEntity):
-    user_id: str = field(default_factory=str)
-    speaker_id: str = field(default_factory=str)
+    project_id: str = field(default_factory=str)
     speech_metadata: SpeechMetadata = field(default_factory=SpeechMetadata)
     text: str = field(default_factory=str)
     language: str = field(default_factory=str)
+    block_number: int = field(default_factory=int)
+    speech_s3_link: str = field(default_factory=str)
 
     def get_id(self):
         return self.id
@@ -48,17 +56,23 @@ class TTSEntity(BaseEntity):
     def set_id(self, rzp_id):
         self.id = rzp_id
 
-    def get_speaker_id(self):
-        return self.speaker_id
+    def get_block_number(self):
+        return self.block_number
 
-    def set_speaker_id(self, speaker_id):
-        self.speaker_id = speaker_id
+    def set_block_number(self, block_number):
+        self.block_number = block_number
 
-    def get_user_id(self):
-        return self.user_id
+    def get_project_id(self):
+        return self.project_id
 
-    def set_user_id(self, user_id):
-        self.user_id = user_id
+    def set_project_id(self, project_id):
+        self.project_id = project_id
+
+    def get_speech_s3_link(self):
+        return self.speech_s3_link
+
+    def set_speech_s3_link(self, speech_s3_link):
+        self.speech_s3_link = speech_s3_link
 
     def get_text(self):
         return self.text
@@ -93,5 +107,6 @@ class TTSEntity(BaseEntity):
             pitch = speech_metadata_JSON.get("pitch", "")
             duration = speech_metadata_JSON.get("duration", "")
             emotion = speech_metadata_JSON.get("emotion", "")
-            speech_metadata = SpeechMetadata(pitch=pitch, duration=duration, emotion=emotion)
+            speaker_id = speech_metadata_JSON.get("speaker_id", "")
+            speech_metadata = SpeechMetadata(pitch=pitch, duration=duration, emotion=emotion, speaker_id=speaker_id)
             self.speech_metadata = speech_metadata
