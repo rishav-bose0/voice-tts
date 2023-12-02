@@ -1,15 +1,18 @@
+import io
 import json
 
 import boto3
+import librosa
 import numpy as np
 
 import aws.constants as aws_const
+import constants
 from config import app_config
 from entity.tts_entity import TTSEntity
 from logger import logger
 
 
-class AwsVitsModel:
+class Aws:
     def __init__(self):
         self.sagemaker_runtime = boto3.client("sagemaker-runtime", region_name=app_config[aws_const.AWS_REGION_TTS],
                                               aws_access_key_id=app_config[aws_const.AWS_KEY_ID],
@@ -18,17 +21,18 @@ class AwsVitsModel:
                                aws_access_key_id=app_config[aws_const.AWS_KEY_ID],
                                aws_secret_access_key=app_config[aws_const.AWS_ACCESS_KEY])
 
-    def run_tts(self, tts_entity: TTSEntity):
+    def run_tts(self, speaker_details: {}, tts_entity: TTSEntity):
         request_body = {
             "text": tts_entity.get_text(),
             "speaker_id": tts_entity.get_speech_metadata().get_speaker_id(),
             "duration": tts_entity.get_speech_metadata().get_duration(),
-            "speaker_name": "ind_girl",  # TODO REmove
+            "speaker_name": speaker_details.get("speaker_name", ""),  # TODO REmove
             "tts_type": "api_fast"  # TODO REmove
         }
+        endpoint_name = self.get_details_based_on_speaker(speaker_details)
         request_string = json.dumps(request_body).encode()
         try:
-            response = self.sagemaker_runtime.invoke_endpoint(EndpointName=aws_const.ENDPOINT_NAME,
+            response = self.sagemaker_runtime.invoke_endpoint(EndpointName=endpoint_name,
                                                               ContentType=aws_const.JSON_APPLICATION_TYPE,
                                                               Body=request_string)
             result = response['Body'].read().decode('utf-8')
@@ -59,3 +63,21 @@ class AwsVitsModel:
         except Exception as e:
             logger.error("Upload to s3 failed with exception {}".format(e))
             return False, "", e.__str__()
+
+    def download_audio_from_s3(self, s3_link):
+        bucket_name = app_config[aws_const.AWS_BUCKET_NAME]
+        file_key = '/'.join(s3_link.split('/')[3:])
+
+        # Download the audio file from S3
+        response = self.s3.get_object(Bucket=bucket_name, Key=file_key)
+        audio_data = response['Body'].read()
+
+        # Convert the audio data to a NumPy array using librosa
+        audio, sr = librosa.load(io.BytesIO(audio_data))
+        return audio
+
+    def get_details_based_on_speaker(self, speaker_details: {}) -> str:
+        model_name = speaker_details.get("model_name", constants.VCTK_VIT_MODEL)
+        if model_name == constants.VCTK_VIT_MODEL:
+            return aws_const.ENDPOINT_VITS
+        return aws_const.ENDPOINT_NAME_FAST

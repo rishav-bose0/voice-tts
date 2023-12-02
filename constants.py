@@ -15,6 +15,7 @@ TEXT = "text"
 PROJECT_ID = "project_id"
 BLOCK_NUMBER = "block_number"
 LANGUAGE = "language"
+IS_TTS_GENERATED = "is_tts_generated"
 
 # User request constants
 EMAIL = "email"
@@ -39,3 +40,14 @@ BLOCK_DETAILS = "block_details"
 TTS_DETAILS = "tts_details"
 SPEAKER_DETAILS = "speaker_details"
 NAME = "name"
+
+# Model Names
+VCTK_VIT_MODEL = "VCTK"
+VCTK_TORTOISE_MODEL = "TORTOISE_VCTK"
+
+sample_voice_preview = {
+    "130": "https://voaux.s3.ap-south-1.amazonaws.com/promo_audio/Ethan.wav",
+    "126": "https://voaux.s3.ap-south-1.amazonaws.com/promo_audio/Peter.wav",
+    "116": "https://voaux.s3.ap-south-1.amazonaws.com/promo_audio/Emery.wav",
+    "121": "https://voaux.s3.ap-south-1.amazonaws.com/promo_audio/Rachel.wav",
+}

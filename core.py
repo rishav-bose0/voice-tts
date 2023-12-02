@@ -3,7 +3,7 @@ import sqlalchemy.exc
 import constants
 import error_descriptions
 import helper_utils as utils
-from aws.aws_vits import AwsVitsModel
+from aws.aws_vits import Aws
 from common.utils.rzp_id import RzpID
 from entity.project_entity import ProjectEntity
 from entity.speaker_entity import SpeakerEntity
@@ -19,7 +19,7 @@ from repository.user_repository import UserRepository
 
 class TTSCore:
     def __init__(self):
-        self.tts_model = AwsVitsModel()
+        self.aws = Aws()
         self.tts_repo = TTSRepository()
         self.user_repo = UserRepository()
         self.speaker_repo = SpeakerRepository()
@@ -28,13 +28,35 @@ class TTSCore:
         self.user_api_factory = UsersApiFactory()
         self.project_api_factory = ProjectApiFactory()
 
+    def process_tts_request(self, tts_entity: TTSEntity, is_tts_generated: bool):
+        if not is_tts_generated:
+            return self.process_tts(tts_entity=tts_entity)
+        try:
+            tts_aggregate = self.tts_repo.load_tts_aggregate_by_details(project_id=tts_entity.project_id,
+                                                                        text=tts_entity.text,
+                                                                        language=tts_entity.language,
+                                                                        speech_metadata=tts_entity.speech_metadata.__dict__)
+        except Exception as e:
+            return self.process_tts(tts_entity=tts_entity)
+
+        tts_s3_link = tts_aggregate.get_tts_entity().get_speech_s3_link()
+        audio_np = self.aws.download_audio_from_s3(s3_link=tts_s3_link)
+        return audio_np, tts_s3_link, None
+
     def process_tts(self, tts_entity: TTSEntity):
         """
         Function processes the text to speech and returns audio in numpy format, s3 link.
         @param tts_entity: TTSEntity
         returns: audio numpy, s3 link.
         """
-        audio = self.tts_model.run_tts(tts_entity)
+        # Call speaker repo and check the model. Based on the model the endpoints are invoked.
+        speaker_id = tts_entity.get_speech_metadata().get_speaker_id()
+        speaker_entity = self.get_speaker_detail(speaker_id=speaker_id)
+        speaker_details = {
+            "model_name": speaker_entity.model_name,
+            "speaker_name": speaker_entity.name
+        }
+        audio = self.aws.run_tts(speaker_details=speaker_details, tts_entity=tts_entity)
         logger.info("Received Audio")
         is_uploaded, s3_link, err = self.save_file_and_upload(audio)
         if not is_uploaded:
@@ -112,20 +134,41 @@ class TTSCore:
         # Specify the file path where you want to save the WAV file
         file_path = utils.save_audio_file(audio)
         print("File path is {}".format(file_path))
-        is_success, s3_link, err = self.tts_model.upload_to_s3(file_path)
+        is_success, s3_link, err = self.aws.upload_to_s3(file_path)
         utils.delete_file(file_path)
         return is_success, s3_link, err
 
-    def list_all_speakers(self, speaker_ids) -> []:
+    def list_all_speakers(self) -> []:
         """
         Returns a list of all speakers present in db. If speaker_ids is none, will return all.
         @param speaker_ids
         """
         speaker_details = []
-        if speaker_ids is None:
-            speaker_entities = self.speaker_repo.list_all_speakers()
-        else:
-            speaker_entities = self.speaker_repo.list_sample_speakers(speaker_ids=speaker_ids)
+
+        speaker_entities = self.speaker_repo.list_all_speakers()
+        for speaker_entity in speaker_entities:
+            speaker_info = {
+                "Name": speaker_entity.get_name(),
+                "Gender": speaker_entity.get_gender(),
+                "Id": int(speaker_entity.get_id()),
+                "Language": speaker_entity.get_language(),
+                "Emotion": speaker_entity.get_emotions(),
+                "Country": speaker_entity.get_country(),
+                "Img_url": speaker_entity.get_image_link(),
+                "Preview_link": speaker_entity.get_voice_preview_link(),
+                "Is_Premium": speaker_entity.model_name == constants.VCTK_TORTOISE_MODEL
+            }
+            speaker_details.append(speaker_info)
+
+        return speaker_details
+
+    def list_sample_speakers(self, speaker_ids) -> []:
+        """
+        Returns a list of all speakers present in db. If speaker_ids is none, will return all.
+        @param speaker_ids
+        """
+        speaker_details = []
+        speaker_entities = self.speaker_repo.list_sample_speakers(speaker_ids=speaker_ids)
 
         for speaker_entity in speaker_entities:
             speaker_info = {
@@ -135,7 +178,9 @@ class TTSCore:
                 "Language": speaker_entity.get_language(),
                 "Emotion": speaker_entity.get_emotions(),
                 "Country": speaker_entity.get_country(),
-                "Img_url": speaker_entity.get_image_link()
+                "Img_url": speaker_entity.get_image_link(),
+                "Preview_link": constants.sample_voice_preview.get(speaker_entity.get_id()),
+                "Is_Premium": speaker_entity.model_name == constants.VCTK_TORTOISE_MODEL
             }
             speaker_details.append(speaker_info)
 
@@ -233,3 +278,5 @@ class TTSCore:
             return True, ""
         except Exception as e:
             return False, "Internal Error"
+
+    # def get_sample_speaker_preview(self):

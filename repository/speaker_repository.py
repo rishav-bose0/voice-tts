@@ -1,3 +1,5 @@
+from sqlalchemy import desc
+
 from aggregate import SpeakerAggregate
 from common.repository import base
 from entity.speaker_entity import SpeakerEntity
@@ -49,7 +51,8 @@ class SpeakerRepository(base.Base):
 
     def list_all_speakers(self) -> [SpeakerEntity]:
         try:
-            speaker_detail_models = self.model.query.all()
+            speaker_detail_models = self.model.query.order_by(
+                desc(self.model.created_at)).all()
         except Exception as e:
             logger.error(e)
             raise e
