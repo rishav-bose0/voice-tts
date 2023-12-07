@@ -51,6 +51,7 @@ class TTSService:
             # Check if tts already generated
             is_tts_generated = req.get(constants.IS_TTS_GENERATED, False)
             audio_np, s3_link, err = self.tts_core.process_tts_request(tts_entity, is_tts_generated)
+            print("Processed TTS REquest")
             if err is not None:
                 return False, s3_link, err
 
@@ -93,12 +94,12 @@ class TTSService:
     def voice_preview(self, speaker_id, name):
         return self.tts_core.voice_preview(speaker_id=speaker_id)
 
-    def list_all_speakers(self):
-        return self.tts_core.list_all_speakers()
+    def list_all_speakers(self, user_id):
+        return self.tts_core.list_all_speakers(user_id)
 
     def list_sample_speakers(self):
         # speaker_ids = ["55", "59", "60", "88", "102", "103"]
-        speaker_ids = ["130", "126", "116", "121"]
+        speaker_ids = [226, 296, 282, 286]
         return self.tts_core.list_sample_speakers(speaker_ids=speaker_ids)
 
     def create_speakers(self, speaker_details):
@@ -131,3 +132,6 @@ class TTSService:
             return False, error_descriptions.USER_ID_CANNOT_EMPTY
         user_entity.id = user_id
         return self.tts_core.update_user_details(user_entity=user_entity)
+
+    def create_voice_clone(self, voice_clone_details):
+        return self.tts_core.create_voice_clone(voice_clone_details)

@@ -42,12 +42,45 @@ SPEAKER_DETAILS = "speaker_details"
 NAME = "name"
 
 # Model Names
-VCTK_VIT_MODEL = "VCTK"
+VCTK_VIT_MODEL = "VITS_VCTK"
 VCTK_TORTOISE_MODEL = "TORTOISE_VCTK"
+TORTOISE_CLONE_MODEL = "TORTOISE_CLONE"
 
 sample_voice_preview = {
-    "130": "https://voaux.s3.ap-south-1.amazonaws.com/promo_audio/Ethan.wav",
-    "126": "https://voaux.s3.ap-south-1.amazonaws.com/promo_audio/Peter.wav",
-    "116": "https://voaux.s3.ap-south-1.amazonaws.com/promo_audio/Emery.wav",
-    "121": "https://voaux.s3.ap-south-1.amazonaws.com/promo_audio/Rachel.wav",
+    282: "https://voaux.s3.ap-south-1.amazonaws.com/promo_audio/Ethan.wav",
+    286: "https://voaux.s3.ap-south-1.amazonaws.com/promo_audio/Peter.wav",
+    296: "https://voaux.s3.ap-south-1.amazonaws.com/promo_audio/Emery.wav",
+    226: "https://voaux.s3.ap-south-1.amazonaws.com/promo_audio/Rachel.wav",
+}
+
+avatar_pics = {
+    "M": [
+        "https://vaux-contents.s3.us-east-2.amazonaws.com/profile_images/avatar_68.png",
+        "https://vaux-contents.s3.us-east-2.amazonaws.com/profile_images/avatar_2.png",
+        "https://vaux-contents.s3.us-east-2.amazonaws.com/profile_images/avatar_4.png",
+        "https://vaux-contents.s3.us-east-2.amazonaws.com/profile_images/avatar_5.png",
+        "https://vaux-contents.s3.us-east-2.amazonaws.com/profile_images/avatar_6.png",
+        "https://vaux-contents.s3.us-east-2.amazonaws.com/profile_images/avatar_7.png",
+        "https://vaux-contents.s3.us-east-2.amazonaws.com/profile_images/avatar_8.png",
+        "https://vaux-contents.s3.us-east-2.amazonaws.com/profile_images/avatar_9.png",
+        "https://vaux-contents.s3.us-east-2.amazonaws.com/profile_images/avatar_10.png",
+        "https://vaux-contents.s3.us-east-2.amazonaws.com/profile_images/avatar_11.png",
+        "https://vaux-contents.s3.us-east-2.amazonaws.com/profile_images/avatar_13.png"
+    ],
+    "F": [
+        "https://vaux-contents.s3.us-east-2.amazonaws.com/profile_images/avatar_34.png",
+        "https://vaux-contents.s3.us-east-2.amazonaws.com/profile_images/avatar_64.png",
+        "https://vaux-contents.s3.us-east-2.amazonaws.com/profile_images/avatar_65.png",
+        "https://vaux-contents.s3.us-east-2.amazonaws.com/profile_images/avatar_66.png",
+        "https://vaux-contents.s3.us-east-2.amazonaws.com/profile_images/avatar_67.png",
+        "https://vaux-contents.s3.us-east-2.amazonaws.com/profile_images/avatar_0.png",
+        "https://vaux-contents.s3.us-east-2.amazonaws.com/profile_images/avatar_35.png",
+        "https://vaux-contents.s3.us-east-2.amazonaws.com/profile_images/avatar_70.png",
+        "https://vaux-contents.s3.us-east-2.amazonaws.com/profile_images/avatar_21.png",
+        "https://vaux-contents.s3.us-east-2.amazonaws.com/profile_images/avatar_37.png",
+        "https://vaux-contents.s3.us-east-2.amazonaws.com/profile_images/avatar_73.png",
+        "https://vaux-contents.s3.us-east-2.amazonaws.com/profile_images/avatar_74.png",
+        "https://vaux-contents.s3.us-east-2.amazonaws.com/profile_images/avatar_75.png",
+        "https://vaux-contents.s3.us-east-2.amazonaws.com/profile_images/avatar_76.png"
+    ]
 }

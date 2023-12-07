@@ -1,10 +1,25 @@
+import json
 from dataclasses import dataclass
 from dataclasses import field
 
 
 @dataclass
+class CloneDetails:
+    auto_condition_link: str = field(default_factory=str)
+
+    def get_auto_condition_link(self):
+        return self.auto_condition_link
+
+    def set_auto_condition_link(self, auto_condition_link):
+        self.auto_condition_link = auto_condition_link
+
+    def to_JSON(self):
+        return json.dumps(self, default=lambda o: o.__dict__)
+
+
+@dataclass
 class SpeakerEntity:
-    id: str = field(default_factory=str)
+    id: int = field(default=None)
     name: str = field(default_factory=str)
     gender: str = field(default_factory=str)
     model_name: str = field(default_factory=str)
@@ -13,6 +28,9 @@ class SpeakerEntity:
     image_link: str = field(default_factory=str)
     voice_preview_link: str = field(default_factory=str)
     emotions: list[str] = field(default_factory=list[str])
+    user_id: str = field(default_factory=str)
+    speaker_type: str = field(default_factory=str)
+    clone_details: CloneDetails = field(default=None)
 
     def get_id(self):
         return self.id
@@ -68,5 +86,31 @@ class SpeakerEntity:
     def set_emotions(self, emotions):
         self.emotions = emotions
 
+    def get_user_id(self):
+        return self.user_id
+
+    def set_user_id(self, user_id):
+        self.user_id = user_id
+
+    def get_speaker_type(self):
+        return self.speaker_type
+
+    def set_speaker_type(self, speaker_type):
+        self.speaker_type = speaker_type
+
+    def get_clone_details(self):
+        return self.clone_details
+
+    def set_clone_details(self, clone_details):
+        self.clone_details = clone_details
+
+    def set_clone_details_from_JSON(self, clone_details_JSON):
+        if clone_details_JSON is None:
+            self.clone_details = None
+        else:
+            auto_condition_link = clone_details_JSON.get("auto_condition_link", "")
+            clone_details = CloneDetails(auto_condition_link=auto_condition_link)
+            self.clone_details = clone_details
+
     def to_JSON(self):
-        return self.__dict__
+        return json.dumps(self, default=lambda o: o.__dict__)

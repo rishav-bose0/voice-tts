@@ -49,10 +49,35 @@ class SpeakerRepository(base.Base):
         speaker_aggregate.set_speaker_entity(speaker_entity)
         return speaker_aggregate
 
-    def list_all_speakers(self) -> [SpeakerEntity]:
+    # def load_speaker_aggregate_by_name(self, name) -> SpeakerAggregate:
+    #     """
+    #     loads the speaker_aggregate with speaker_id
+    #     @param speaker_id:
+    #     :return: speakerAggregate
+    #     """
+    #     try:
+    #         speaker_details_model = self.model.query.filter(self.model.name == name).first()
+    #     except Exception as e:
+    #         logger.error(e)
+    #         raise e
+    #     finally:
+    #         self.model.query.session.close()
+    #     if speaker_details_model is None:
+    #         return None
+    #     speaker_entity = speaker_details_model.to_entity()
+    #     speaker_aggregate = SpeakerAggregate()
+    #     speaker_aggregate.set_speaker_entity(speaker_entity)
+    #     return speaker_aggregate
+
+    def list_all_speakers(self, user_id) -> [SpeakerEntity]:
         try:
-            speaker_detail_models = self.model.query.order_by(
-                desc(self.model.created_at)).all()
+            speaker_detail_models = self.model.query.filter(
+                (self.model.speaker_type == "public") | (self.model.user_id == user_id)
+            ).order_by(
+                desc(self.model.created_at)
+            ).all()
+            # self.model.query.order_by(
+            # desc(self.model.created_at)).all()
         except Exception as e:
             logger.error(e)
             raise e

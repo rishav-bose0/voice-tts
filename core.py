@@ -6,7 +6,7 @@ import helper_utils as utils
 from aws.aws_vits import Aws
 from common.utils.rzp_id import RzpID
 from entity.project_entity import ProjectEntity
-from entity.speaker_entity import SpeakerEntity
+from entity.speaker_entity import SpeakerEntity, CloneDetails
 from entity.tts_entity import TTSEntity
 from entity.user_entity import UserEntity
 from factory import TTSApiFactory, UsersApiFactory, ProjectApiFactory
@@ -54,8 +54,13 @@ class TTSCore:
         speaker_entity = self.get_speaker_detail(speaker_id=speaker_id)
         speaker_details = {
             "model_name": speaker_entity.model_name,
-            "speaker_name": speaker_entity.name
+            "speaker_name": speaker_entity.name,
+            # "voice_conditioning_link": speaker_entity.get_clone_details().get_auto_condition_link()
         }
+        if speaker_entity.model_name == constants.VCTK_TORTOISE_MODEL or \
+                speaker_entity.model_name == constants.TORTOISE_CLONE_MODEL:
+            speaker_details["voice_conditioning_link"] = speaker_entity.get_clone_details().get_auto_condition_link()
+
         audio = self.aws.run_tts(speaker_details=speaker_details, tts_entity=tts_entity)
         logger.info("Received Audio")
         is_uploaded, s3_link, err = self.save_file_and_upload(audio)
@@ -134,18 +139,20 @@ class TTSCore:
         # Specify the file path where you want to save the WAV file
         file_path = utils.save_audio_file(audio)
         print("File path is {}".format(file_path))
-        is_success, s3_link, err = self.aws.upload_to_s3(file_path)
+        upload_args = {'ContentType': 'audio/wav', 'ContentDisposition': 'attachment'}
+        s3_upload_path = "audio_files/{}".format(file_path.split("/")[2])
+        is_success, s3_link, err = self.aws.upload_to_s3(file_path, s3_upload_path, upload_args)
         utils.delete_file(file_path)
         return is_success, s3_link, err
 
-    def list_all_speakers(self) -> []:
+    def list_all_speakers(self, user_id) -> []:
         """
         Returns a list of all speakers present in db. If speaker_ids is none, will return all.
-        @param speaker_ids
+        @param user_id
         """
         speaker_details = []
 
-        speaker_entities = self.speaker_repo.list_all_speakers()
+        speaker_entities = self.speaker_repo.list_all_speakers(user_id)
         for speaker_entity in speaker_entities:
             speaker_info = {
                 "Name": speaker_entity.get_name(),
@@ -156,7 +163,7 @@ class TTSCore:
                 "Country": speaker_entity.get_country(),
                 "Img_url": speaker_entity.get_image_link(),
                 "Preview_link": speaker_entity.get_voice_preview_link(),
-                "Is_Premium": speaker_entity.model_name == constants.VCTK_TORTOISE_MODEL
+                "Type": "standard" if speaker_entity.model_name == constants.VCTK_VIT_MODEL else "premium" if speaker_entity.model_name == constants.VCTK_TORTOISE_MODEL else "clone"
             }
             speaker_details.append(speaker_info)
 
@@ -190,15 +197,16 @@ class TTSCore:
         speaker_entity_list = []
         for speaker_detail in speaker_details_list:
             speaker_entity = SpeakerEntity(
-                id=speaker_detail.get("id"),
+                # id=speaker_detail.get("id"),
                 name=speaker_detail.get("name"),
                 gender=speaker_detail.get("gender"),
-                model_name="VCTK",
+                model_name="TORTOISE_VCTK",
                 language="en",
                 image_link=speaker_detail.get("image_link"),
                 voice_preview_link=speaker_detail.get("voice_preview_link"),
                 country="us",
-                emotions=["Neutral"]
+                emotions=["Neutral"],
+                speaker_type="public"
             )
             speaker_entity_list.append(speaker_entity)
 
@@ -279,4 +287,54 @@ class TTSCore:
         except Exception as e:
             return False, "Internal Error"
 
-    # def get_sample_speaker_preview(self):
+    def create_voice_clone(self, voice_clone_details):
+        """
+        voice_clone_details = {
+            "voice_folder": "/tmp/" + clone_name,
+            "speaker_name": clone_name,
+            "user_id": req.get("user_id")
+        }
+        """
+
+        voice_folder_path = voice_clone_details.get("voice_folder")
+        # Resample audio to 22050 sr
+        logger.info("Resampling Audio ..")
+        resampled_voice_folder_path = voice_folder_path + "_resampled"
+        utils.resample_folder_audio(voice_folder_path, resampled_voice_folder_path)
+        logger.info("Audio Resampling Done.")
+        speaker_name = voice_clone_details.get("speaker_name")
+        user_id = voice_clone_details.get("user_id")
+        gender = voice_clone_details.get("gender")
+        folder_s3_link = self.aws.upload_folder_to_s3(local_folder_path=resampled_voice_folder_path,
+                                                      s3_folder_path="cloned_voice/{}_{}".format(speaker_name, user_id))
+        if folder_s3_link is None:
+            return False, error_descriptions.VOICE_CLONING_FAILED
+
+        voice_clone_details["voice_clone_s3_link"] = folder_s3_link
+        utils.delete_dir(resampled_voice_folder_path)
+
+        # https://voaux.s3.ap-south-1.amazonaws.com/cloned_voice/Karen_N7mXC9iSRU0DgJ/
+        auto_conditioning_s3_link = self.aws.add_voice_clone(clone_details=voice_clone_details)
+
+        # speaker_agg = self.speaker_repo.load_speaker_aggregate_by_name(speaker_name)
+        speaker_entity = SpeakerEntity(
+            name=speaker_name,
+            model_name=constants.TORTOISE_CLONE_MODEL,
+            user_id=user_id,
+            gender=gender,
+            speaker_type="clone",
+            clone_details=CloneDetails(
+                auto_condition_link=auto_conditioning_s3_link
+            ),
+            # language="en",
+            # country="us",
+            emotions=["Neutral"],
+            image_link=utils.get_image_avatar(gender),
+            # voice_preview_link=speaker_agg.get_speaker_entity().get_voice_preview_link()
+        )
+
+        try:
+            self.speaker_repo.create_speaker_aggregate(speaker_entity)
+            return True, "Voice Cloning Successful"
+        except Exception as e:
+            return False, error_descriptions.VOICE_CLONING_FAILED

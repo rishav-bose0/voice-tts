@@ -1,12 +1,17 @@
 import csv
+import os
 
+from flask import request
+from werkzeug.utils import secure_filename
+
+import helper_utils
 from service import TTSService
 from web.controllers.base_controller import BaseController
-from web.routing.auth import authenticate, conditional_decorator
+from web.routing.auth import authenticate
 
 
 class ProcessTTS(BaseController):
-    method_decorators = [conditional_decorator]
+    method_decorators = [authenticate]
 
     def post(self):
         request = BaseController.get_request_input()
@@ -119,8 +124,8 @@ class VoicePreview(BaseController):
 class ListVoices(BaseController):
     method_decorators = [authenticate]
 
-    def get(self):
-        return TTSService().list_all_speakers()
+    def get(self, user_id):
+        return TTSService().list_all_speakers(user_id)
 
 
 class ListSampleVoices(BaseController):
@@ -174,4 +179,34 @@ class UpdateUserDetails(BaseController):
         if err != "":
             response["error"] = err
 
+        return response, 200
+
+
+class CloneVoice(BaseController):
+    method_decorators = [authenticate]
+
+    def post(self):
+        files = request.files.getlist("files")
+        clone_name = request.form.get('clone_name')
+        gender = request.form.get('gender')
+        user_id = request.form.get('user_id')
+        dir_name = os.path.dirname("/tmp/{}/".format(clone_name))
+        if not os.path.exists(dir_name):
+            os.makedirs(dir_name)
+
+        for file in files:
+            if file:
+                filename = secure_filename(file.filename)
+                file.save(os.path.join('/tmp/' + clone_name, filename))  # Save the file to the desired location
+
+        voice_clone_details = {
+            "voice_folder": "/tmp/" + clone_name,
+            "speaker_name": clone_name,
+            "user_id": user_id,
+            "gender": gender
+        }
+        is_success, message = TTSService().create_voice_clone(voice_clone_details)
+        helper_utils.delete_dir(voice_clone_details.get("voice_folder"))
+
+        response = {"voice_clone_success": is_success, "message": message}
         return response, 200
