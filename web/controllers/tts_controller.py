@@ -69,7 +69,7 @@ class CreateSpeakers(BaseController):
         data_dict = {}
 
         # Open the CSV file for reading
-        with open('/Users/rishavbose/PycharmProjects/voiceai/final_speaker.csv', mode='r') as csv_file:
+        with open('../final_speaker.csv', mode='r') as csv_file:
             csv_reader = csv.DictReader(csv_file)  # Use DictReader for easy column access
 
             # Iterate through the rows in the CSV file

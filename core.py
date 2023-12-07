@@ -198,7 +198,7 @@ class TTSCore:
     def create_speakers(self, speaker_details_list) -> bool:
         speaker_entity_list = []
         for speaker_detail in speaker_details_list:
-            clone_details = json.loads(speaker_detail.get("clone_details"))
+
             speaker_entity = SpeakerEntity(
                 id=speaker_detail.get("id"),
                 name=speaker_detail.get("name"),
@@ -210,8 +210,14 @@ class TTSCore:
                 country="us",
                 emotions=["Neutral"],
                 speaker_type="public",
-                clone_details=CloneDetails(auto_condition_link=clone_details.get("auto_condition_link"))
+                # clone_details=CloneDetails(auto_condition_link=clone_details_json.get("auto_condition_link"))
             )
+            clone_details = speaker_detail.get("clone_details")
+            if clone_details != '':
+                clone_details_json = json.loads(json.loads(clone_details))
+                speaker_entity.clone_details = CloneDetails(
+                    auto_condition_link=clone_details_json.get("auto_condition_link"))
+
             speaker_entity_list.append(speaker_entity)
 
         for speaker_entity in speaker_entity_list:
