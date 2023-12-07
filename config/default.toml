@@ -12,11 +12,11 @@ SQLALCHEMY_TRACK_MODIFICATIONS = false
 #DB_HOST = "localhost"
 #DB_DATABASE = "tts"
 #DB_PORT = "5432"
-DB_USERNAME = "asyqiljowicxqx"
-DB_PASSWORD = "0a151c272a5c92bbcad88131b8889b6afa9aeb79edbd27ef68a3c4f65ecc0c38"
-DB_HOST = "ec2-44-213-228-107.compute-1.amazonaws.com"
-DB_DATABASE = "d6f7tsm5uhbgth"
-DB_PORT = "5432"
+DB_USERNAME = "doadmin"
+DB_PASSWORD = "AVNS_h0TkkOtrEWs0a_BawTr"
+DB_HOST = "db-postgresql-blr1-67572-do-user-15330139-0.c.db.ondigitalocean.com"
+DB_DATABASE = "defaultdb"
+DB_PORT = "25060"
 # DB Conn pool config
 POOL_PRE_PING = true
 POOL_TIMEOUT = 120
