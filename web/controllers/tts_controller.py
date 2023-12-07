@@ -69,24 +69,30 @@ class CreateSpeakers(BaseController):
         data_dict = {}
 
         # Open the CSV file for reading
-        with open('/Users/rishavbose/PycharmProjects/voiceai/speaker_dets_1.csv', mode='r') as csv_file:
+        with open('/Users/rishavbose/PycharmProjects/voiceai/final_speaker.csv', mode='r') as csv_file:
             csv_reader = csv.DictReader(csv_file)  # Use DictReader for easy column access
 
             # Iterate through the rows in the CSV file
             for row in csv_reader:
                 # Extract data from each row
-                id_value = row['Id']
-                name = row['Name']
-                gender = row['Gender']
+                id_value = row['id']
+                name = row['name']
+                gender = row['gender']
                 image_link = row['image_link']
                 voice_preview_link = row['voice_preview_link']
+                model_name = row['model_name']
+                clone_details = row['clone_details']
+                speaker_type = row['speaker_type']
                 # Add the data to the dictionary with Id as the key
                 data_dict[id_value] = {
                     'id': id_value,
                     'name': name,
                     'gender': gender,
                     'image_link': image_link,
-                    'voice_preview_link': voice_preview_link
+                    'voice_preview_link': voice_preview_link,
+                    'model_name': model_name,
+                    'clone_details': clone_details,
+                    'speaker_type': speaker_type
                 }
             return TTSService().create_speakers(list(data_dict.values()))
 

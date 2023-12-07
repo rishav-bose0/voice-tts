@@ -1,3 +1,5 @@
+import json
+
 import sqlalchemy.exc
 
 import constants
@@ -196,17 +198,19 @@ class TTSCore:
     def create_speakers(self, speaker_details_list) -> bool:
         speaker_entity_list = []
         for speaker_detail in speaker_details_list:
+            clone_details = json.loads(speaker_detail.get("clone_details"))
             speaker_entity = SpeakerEntity(
-                # id=speaker_detail.get("id"),
+                id=speaker_detail.get("id"),
                 name=speaker_detail.get("name"),
                 gender=speaker_detail.get("gender"),
-                model_name="TORTOISE_VCTK",
+                model_name=speaker_detail.get("model_name"),
                 language="en",
                 image_link=speaker_detail.get("image_link"),
                 voice_preview_link=speaker_detail.get("voice_preview_link"),
                 country="us",
                 emotions=["Neutral"],
-                speaker_type="public"
+                speaker_type="public",
+                clone_details=CloneDetails(auto_condition_link=clone_details.get("auto_condition_link"))
             )
             speaker_entity_list.append(speaker_entity)
 
