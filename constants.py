@@ -50,7 +50,7 @@ sample_voice_preview = {
     282: "https://voaux.s3.ap-south-1.amazonaws.com/promo_audio/Ethan.wav",
     286: "https://voaux.s3.ap-south-1.amazonaws.com/promo_audio/Peter.wav",
     296: "https://voaux.s3.ap-south-1.amazonaws.com/promo_audio/Emery.wav",
-    226: "https://voaux.s3.ap-south-1.amazonaws.com/promo_audio/Rachel.wav",
+    291: "https://voaux.s3.ap-south-1.amazonaws.com/promo_audio/Rachel.wav",
 }
 
 avatar_pics = {
