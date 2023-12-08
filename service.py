@@ -99,7 +99,7 @@ class TTSService:
 
     def list_sample_speakers(self):
         # speaker_ids = ["55", "59", "60", "88", "102", "103"]
-        speaker_ids = [226, 296, 282, 286]
+        speaker_ids = [291, 296, 282, 286]
         return self.tts_core.list_sample_speakers(speaker_ids=speaker_ids)
 
     def create_speakers(self, speaker_details):
