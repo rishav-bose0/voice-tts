@@ -7,6 +7,7 @@ from core import TTSCore
 from entity.project_entity import ProjectEntity
 from entity.tts_entity import TTSEntity, SpeechMetadata
 from entity.user_entity import UserEntity
+from logger import logger
 
 
 class TTSService:
@@ -48,6 +49,9 @@ class TTSService:
         s3_link = ""
         for req in request:
             tts_entity = self.to_tts_entity(req)
+            if not tts_entity.is_valid():
+                logger.info("Request is not valid")
+                return False, s3_link, error_descriptions.INVALID_REQUEST_BODY
             # Check if tts already generated
             is_tts_generated = req.get(constants.IS_TTS_GENERATED, False)
             audio_np, s3_link, err = self.tts_core.process_tts_request(tts_entity, is_tts_generated)

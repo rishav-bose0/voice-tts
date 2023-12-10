@@ -1,4 +1,5 @@
 import json
+import time
 
 import sqlalchemy.exc
 
@@ -52,6 +53,7 @@ class TTSCore:
         returns: audio numpy, s3 link.
         """
         # Call speaker repo and check the model. Based on the model the endpoints are invoked.
+        process_tts_start_time = time.time()
         speaker_id = tts_entity.get_speech_metadata().get_speaker_id()
         speaker_entity = self.get_speaker_detail(speaker_id=speaker_id)
         speaker_details = {
@@ -64,13 +66,21 @@ class TTSCore:
             speaker_details["voice_conditioning_link"] = speaker_entity.get_clone_details().get_auto_condition_link()
 
         audio = self.aws.run_tts(speaker_details=speaker_details, tts_entity=tts_entity)
+        process_tts_end_time = time.time()
+        logger.info("Time taken for tts operation {} secs".format(process_tts_end_time - process_tts_start_time))
         logger.info("Received Audio")
         is_uploaded, s3_link, err = self.save_file_and_upload(audio)
+        save_file_and_upload_end_time = time.time()
+        logger.info("Time taken for save_file_and_upload operation {} secs".format(
+            save_file_and_upload_end_time - process_tts_end_time))
         if not is_uploaded:
             return audio, "", err
         tts_entity.set_speech_s3_link(s3_link)
         tts_aggregate = self.tts_api_factory.build(tts_entity)
         self.tts_repo.create_tts_aggregate(tts_aggregate=tts_aggregate)
+        save_aggregate_end_time = time.time()
+        logger.info("Time taken for save_file_and_upload operation {} secs".format(
+            save_aggregate_end_time - save_file_and_upload_end_time))
         logger.info("TTS task successful")
         return audio, s3_link, None
 
@@ -310,7 +320,10 @@ class TTSCore:
         # Resample audio to 22050 sr
         logger.info("Resampling Audio ..")
         resampled_voice_folder_path = voice_folder_path + "_resampled"
-        utils.resample_folder_audio(voice_folder_path, resampled_voice_folder_path)
+        is_resampled = utils.resample_folder_audio(voice_folder_path, resampled_voice_folder_path)
+        if not is_resampled:
+            return False, error_descriptions.VOICE_CLONING_FAILED
+
         logger.info("Audio Resampling Done.")
         speaker_name = voice_clone_details.get("speaker_name")
         user_id = voice_clone_details.get("user_id")

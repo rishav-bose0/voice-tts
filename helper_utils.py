@@ -136,14 +136,27 @@ def process_audio(input_file, output_file, target_sr=22050):
 def resample_folder_audio(folder_path: str, output_folder_path: str):
     os.makedirs(output_folder_path, exist_ok=True)
     target_sr = 22050
+    err_threshold_count = 4
+    total_err = 0
     for filename in os.listdir(folder_path):
-        if filename.endswith(".wav"):
-            input_file = os.path.join(folder_path, filename)
-            output_file = os.path.join(output_folder_path, filename)
-            audio = AudioSegment.from_file(input_file)
+        input_file = os.path.join(folder_path, filename)
+        output_file = os.path.join(output_folder_path, filename)
+        try:
+            if filename.endswith(".wav"):
+                audio = AudioSegment.from_wav(input_file)
+            elif filename.endswith(".mp3"):
+                audio = AudioSegment.from_mp3(input_file)
+            elif filename.endswith(".ogg"):
+                audio = AudioSegment.from_ogg(input_file)
 
             # Resample the audio to the target sample rate
             resampled_audio = audio.set_frame_rate(target_sr)
 
             # Export the processed audio
             resampled_audio.export(output_file, format="wav")
+        except Exception as e:
+            total_err = total_err + 1
+            if total_err >= err_threshold_count:
+                return False
+
+    return True

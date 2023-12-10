@@ -119,3 +119,6 @@ class TTSEntity(BaseEntity):
                                              duration=speech_metadata.get("duration"),
                                              emotion=speech_metadata.get("emotion"),
                                              speaker_id=speech_metadata.get("speaker_id"))
+
+    def is_valid(self):
+        return self.project_id != '' and self.project_id is not None and self.text != '' and self.text is not None
