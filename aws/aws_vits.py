@@ -33,6 +33,7 @@ class Aws:
         #     # "tts_type": "api_fast"  # TODO REmove
         # }
         endpoint_name, request_body = self.get_details_based_on_speaker_model(speaker_details, tts_entity)
+        logger.info("Request Text is {}".format(request_body.get("text")))
         request_string = json.dumps(request_body).encode()
         try:
             response = self.sagemaker_runtime.invoke_endpoint(EndpointName=endpoint_name,
@@ -42,6 +43,8 @@ class Aws:
 
             json_load = json.loads(result)
             audio_np = np.array(json_load[aws_const.RESPONSE_KEY])
+            if 'Exception' in json_load[aws_const.RESPONSE_KEY]:
+                print("Error is {}".format(json_load[aws_const.RESPONSE_KEY]))
             logger.info("Response is")
         except Exception as e:
             logger.info("TTS processing failed with exception {}".format(e))
