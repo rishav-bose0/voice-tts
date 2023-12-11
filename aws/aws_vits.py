@@ -42,7 +42,7 @@ class Aws:
 
             json_load = json.loads(result)
             audio_np = np.array(json_load[aws_const.RESPONSE_KEY])
-            logger.info("Response is {}".format(json_load[aws_const.RESPONSE_KEY]))
+            logger.info("Response is")
         except Exception as e:
             logger.info("TTS processing failed with exception {}".format(e))
             return []
