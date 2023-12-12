@@ -33,7 +33,7 @@ class Aws:
         #     # "tts_type": "api_fast"  # TODO REmove
         # }
         endpoint_name, request_body = self.get_details_based_on_speaker_model(speaker_details, tts_entity)
-        logger.info("Request Text is {}".format(request_body.get("text")))
+        logger.info("Endpoint {}".format(endpoint_name))
         request_string = json.dumps(request_body).encode()
         try:
             response = self.sagemaker_runtime.invoke_endpoint(EndpointName=endpoint_name,
@@ -59,7 +59,7 @@ class Aws:
             "latent_file_name": "{}_{}.pth".format(clone_details.get("speaker_name"), clone_details.get("user_id"))
         }
         request_string = json.dumps(request_body).encode()
-        response = self.sagemaker_runtime.invoke_endpoint(EndpointName=aws_const.ENDPOINT_NAME_FAST,
+        response = self.sagemaker_runtime.invoke_endpoint(EndpointName=app_config[aws_const.ENDPOINT_NAME_FAST],
                                                           ContentType=aws_const.JSON_APPLICATION_TYPE,
                                                           Body=request_string)
         result = response['Body'].read().decode('utf-8')
@@ -130,4 +130,4 @@ class Aws:
             "voice_conditioning_link": speaker_details.get("voice_conditioning_link"),
             "process_type": "tts",
         }
-        return aws_const.ENDPOINT_NAME_FAST, request_body
+        return app_config[aws_const.ENDPOINT_NAME_FAST], request_body
