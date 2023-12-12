@@ -1,6 +1,6 @@
 JSON_APPLICATION_TYPE = "application/json"
 # ENDPOINT_NAME = "voice-tts-2023-11-16-09-03-58-655"
-ENDPOINT_VITS = "voice-tts-2023-12-06-13-45-02-507"  # FOR VITS MODEL
+ENDPOINT_VITS = "endpoint_vits"  # FOR VITS MODEL
 ENDPOINT_NAME = "voice-tts-2023-11-20-09-07-56-031"  ## FOR API Endpoint
 ENDPOINT_NAME_FAST = "endpoint_name_fast"  ## FOR API FAST Endpoint
 RESPONSE_KEY = "Response"

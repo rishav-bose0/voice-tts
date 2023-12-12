@@ -123,7 +123,7 @@ class Aws:
                 "speaker_id": tts_entity.get_speech_metadata().get_speaker_id(),
                 "duration": tts_entity.get_speech_metadata().get_duration(),
             }
-            return aws_const.ENDPOINT_VITS, request_body
+            return app_config[aws_const.ENDPOINT_VITS], request_body
 
         request_body = {
             "text": tts_entity.get_text(),

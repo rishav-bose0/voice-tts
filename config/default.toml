@@ -38,3 +38,4 @@ jwt_secret = "vaux-0199-010"
 
 
 endpoint_name_fast = "voice-tts-2023-12-12-04-30-57-700"
+endpoint_vits = "voice-tts-2023-12-12-04-30-57-700"
