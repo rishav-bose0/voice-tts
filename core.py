@@ -208,7 +208,7 @@ class TTSCore:
             "Emotion": speaker_entity.get_emotions(),
             "Country": speaker_entity.get_country(),
             "Img_url": speaker_entity.get_image_link(),
-            "Preview_link": constants.sample_voice_preview.get(speaker_entity.get_voice_preview_link()),
+            "Preview_link": speaker_entity.get_voice_preview_link(),
             "Type": "standard" if speaker_entity.model_name == constants.VCTK_VIT_MODEL else "premium" if speaker_entity.model_name == constants.VCTK_TORTOISE_MODEL else "clone"
         }
 
