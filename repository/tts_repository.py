@@ -1,4 +1,4 @@
-from sqlalchemy import desc
+from sqlalchemy import desc, and_
 
 from aggregate import TTSAggregate
 from common.repository import base
@@ -65,3 +65,25 @@ class TTSRepository(base.Base):
 
         return tts_entities_by_block
         # return list(tts_entities_by_block.values())
+
+    def load_tts_aggregate_by_details(self, project_id, text, language, speech_metadata):
+        try:
+            tts_details_models = self.model.query.filter(and_(
+                self.model.project_id == project_id, self.model.text == text,
+                self.model.language == language)).order_by(
+                desc(self.model.updated_at)).all()
+        except Exception as e:
+            logger.error(e)
+            raise e
+        finally:
+            self.model.query.session.close()
+        if tts_details_models is None:
+            return None
+        for tts_details_model in tts_details_models:
+            tts_entity = tts_details_model.to_entity()
+            if not tts_entity.is_speech_metadata_equal(speech_metadata):
+                continue
+            tts_aggregate = TTSAggregate()
+            tts_aggregate.set_tts_entity(tts_entity)
+            return tts_aggregate
+        return None

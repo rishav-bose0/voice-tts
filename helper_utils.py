@@ -1,9 +1,12 @@
 import os
+import random
+import shutil
 from datetime import datetime, timedelta
 
 import jwt
 import numpy as np
 import requests
+from pydub import AudioSegment
 from scipy.io import wavfile
 
 import constants
@@ -32,6 +35,14 @@ def delete_file(file_path):
     else:
         # If it fails, inform the user.
         logger.info("Error: {} file not found".format(file_path))
+
+
+def delete_dir(dir_path):
+    try:
+        shutil.rmtree(dir_path)
+        print(f"Directory '{dir_path}' successfully deleted.")
+    except OSError as e:
+        print(f"Error: {dir_path} : {e.strerror}")
 
 
 def create_jwt_token(payload_details: dict):
@@ -85,6 +96,7 @@ def decode_google_oath_token_to_user_details(token) -> {}:
 def is_request_contain_oath_token(request) -> bool:
     return request.get("token") is not None
 
+
 # def upload_audio_file_to_s3(file_path, bucket_name, object_key, content_type='audio/wav'):
 #     # Initialize S3 client
 #     s3 = boto3.client('s3')
@@ -100,3 +112,51 @@ def is_request_contain_oath_token(request) -> bool:
 #     )
 #
 #     print(f"File uploaded successfully to S3: {bucket_name}/{object_key}")
+
+def get_image_avatar(gender):
+    return random.choice(constants.avatar_pics.get(gender))
+
+
+def process_audio(input_file, output_file, target_sr=22050):
+    audio = AudioSegment.from_file(input_file)
+
+    # Resample the audio to the target sample rate
+    resampled_audio = audio.set_frame_rate(target_sr)
+
+    # Export the processed audio
+    resampled_audio.export(output_file, format="wav")
+
+
+# Specify the directory containing the WAV files
+
+
+# Process each WAV file in the input directory
+
+
+def resample_folder_audio(folder_path: str, output_folder_path: str):
+    os.makedirs(output_folder_path, exist_ok=True)
+    target_sr = 22050
+    err_threshold_count = 4
+    total_err = 0
+    for filename in os.listdir(folder_path):
+        input_file = os.path.join(folder_path, filename)
+        output_file = os.path.join(output_folder_path, filename)
+        try:
+            if filename.endswith(".wav"):
+                audio = AudioSegment.from_wav(input_file)
+            elif filename.endswith(".mp3"):
+                audio = AudioSegment.from_mp3(input_file)
+            elif filename.endswith(".ogg"):
+                audio = AudioSegment.from_ogg(input_file)
+
+            # Resample the audio to the target sample rate
+            resampled_audio = audio.set_frame_rate(target_sr)
+
+            # Export the processed audio
+            resampled_audio.export(output_file, format="wav")
+        except Exception as e:
+            total_err = total_err + 1
+            if total_err >= err_threshold_count:
+                return False
+
+    return True

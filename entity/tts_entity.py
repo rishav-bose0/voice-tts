@@ -40,6 +40,9 @@ class SpeechMetadata:
     def to_JSON(self):
         return json.dumps(self, default=lambda o: o.__dict__)
 
+    def is_equal(self, pitch, emotion, duration, speaker_id):
+        return self.pitch == pitch and self.emotion == emotion and self.duration == duration and self.speaker_id == speaker_id
+
 
 @dataclass
 class TTSEntity(BaseEntity):
@@ -110,3 +113,12 @@ class TTSEntity(BaseEntity):
             speaker_id = speech_metadata_JSON.get("speaker_id", "")
             speech_metadata = SpeechMetadata(pitch=pitch, duration=duration, emotion=emotion, speaker_id=speaker_id)
             self.speech_metadata = speech_metadata
+
+    def is_speech_metadata_equal(self, speech_metadata):
+        return self.speech_metadata.is_equal(pitch=speech_metadata.get("pitch"),
+                                             duration=speech_metadata.get("duration"),
+                                             emotion=speech_metadata.get("emotion"),
+                                             speaker_id=speech_metadata.get("speaker_id"))
+
+    def is_valid(self):
+        return self.project_id != '' and self.project_id is not None and self.text != '' and self.text is not None

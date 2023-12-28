@@ -7,16 +7,16 @@ DEBUG = false
 SQLALCHEMY_TRACK_MODIFICATIONS = false
 
 # DB
-DB_USERNAME = "tts"
-DB_PASSWORD = "tts"
-DB_HOST = "localhost"
-DB_DATABASE = "tts"
-DB_PORT = "5432"
-#DB_USERNAME = "yqmrsepyqlzcsw"
-#DB_PASSWORD = "f01a5d3aed7bedc6717237ab31d2c1b2ac73cbc1159a36ba109b65d8ee5fdc96"
-#DB_HOST = "ec2-52-206-38-187.compute-1.amazonaws.com"
-#DB_DATABASE = "d9e776m7ret5a1"
+#DB_USERNAME = "tts"
+#DB_PASSWORD = "tts"
+#DB_HOST = "localhost"
+#DB_DATABASE = "tts"
 #DB_PORT = "5432"
+DB_USERNAME = "doadmin"
+DB_PASSWORD = "AVNS_h0TkkOtrEWs0a_BawTr"
+DB_HOST = "db-postgresql-blr1-67572-do-user-15330139-0.c.db.ondigitalocean.com"
+DB_DATABASE = "defaultdb"
+DB_PORT = "25060"
 # DB Conn pool config
 POOL_PRE_PING = true
 POOL_TIMEOUT = 120
@@ -35,3 +35,7 @@ aws_bucket_name = "voaux"
 
 jwt_expiry_time = 7 # In days
 jwt_secret = "vaux-0199-010"
+
+
+endpoint_name_fast = "voice-tts-2023-12-12-04-30-57-700"
+endpoint_vits = "voice-tts-2023-12-12-04-30-57-700"
