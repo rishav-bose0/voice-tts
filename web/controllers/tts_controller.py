@@ -216,3 +216,9 @@ class CloneVoice(BaseController):
 
         response = {"voice_clone_success": is_success, "message": message}
         return response, 200
+
+
+### Chrome Extensions Logic
+class ListSpeakerDetails(BaseController):
+    def get(self):
+        return TTSService().list_speakers_for_chrome_extension()

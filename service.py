@@ -65,11 +65,12 @@ class TTSService:
         if len(audio_files) == 1:
             return True, s3_link, None
 
-        combined_audio = np.array([])
-
-        # Iterate through the list of audio files and concatenate them
-        for audio_file in audio_files:
-            combined_audio = np.concatenate((combined_audio, audio_file), axis=0)
+        combined_audio = self.apply_cross_fade(audio_files)
+        # combined_audio = np.array([])
+        #
+        # # Iterate through the list of audio files and concatenate them
+        # for audio_file in audio_files:
+        #     combined_audio = np.concatenate((combined_audio, audio_file), axis=0)
 
         return self.tts_core.save_file_and_upload(combined_audio)
 
@@ -139,3 +140,25 @@ class TTSService:
 
     def create_voice_clone(self, voice_clone_details):
         return self.tts_core.create_voice_clone(voice_clone_details)
+
+    def apply_cross_fade(self, audio_files):
+        # Assuming audio_files is a list of numpy arrays representing audio clips
+        fade_duration = 22050  # Duration of the crossfade in samples (adjust as needed)
+
+        combined_audio = audio_files[0]  # Initialize with the first audio clip
+
+        for i in range(1, len(audio_files)):
+            overlap = audio_files[i - 1][-fade_duration:]  # Extract overlap from the previous clip
+            next_clip = audio_files[i][:fade_duration]  # Extract the beginning of the next clip
+
+            # Apply crossfade by averaging the overlapping sections
+            crossfade = np.linspace(1, 0, fade_duration) * overlap + np.linspace(0, 1, fade_duration) * next_clip
+
+            # Concatenate the crossfaded portion with the next audio clip
+            combined_audio = np.concatenate(
+                (combined_audio[:-fade_duration], crossfade, audio_files[i][fade_duration:]), axis=0)
+
+        return combined_audio
+
+    def list_speakers_for_chrome_extension(self):
+        return self.tts_core.list_speakers_for_chrome_extension()

@@ -166,17 +166,7 @@ class TTSCore:
 
         speaker_entities = self.speaker_repo.list_all_speakers(user_id)
         for speaker_entity in speaker_entities:
-            speaker_info = {
-                "Name": speaker_entity.get_name(),
-                "Gender": speaker_entity.get_gender(),
-                "Id": int(speaker_entity.get_id()),
-                "Language": speaker_entity.get_language(),
-                "Emotion": speaker_entity.get_emotions(),
-                "Country": speaker_entity.get_country(),
-                "Img_url": speaker_entity.get_image_link(),
-                "Preview_link": speaker_entity.get_voice_preview_link(),
-                "Type": "standard" if speaker_entity.model_name == constants.VCTK_VIT_MODEL else "premium" if speaker_entity.model_name == constants.VCTK_TORTOISE_MODEL else "clone"
-            }
+            speaker_info = self.get_speaker_details_from_entity(speaker_entity)
             speaker_details.append(speaker_info)
 
         return speaker_details
@@ -190,20 +180,37 @@ class TTSCore:
         speaker_entities = self.speaker_repo.list_sample_speakers(speaker_ids=speaker_ids)
 
         for speaker_entity in speaker_entities:
-            speaker_info = {
-                "Name": speaker_entity.get_name(),
-                "Gender": speaker_entity.get_gender(),
-                "Id": int(speaker_entity.get_id()),
-                "Language": speaker_entity.get_language(),
-                "Emotion": speaker_entity.get_emotions(),
-                "Country": speaker_entity.get_country(),
-                "Img_url": speaker_entity.get_image_link(),
-                "Preview_link": constants.sample_voice_preview.get(speaker_entity.get_id()),
-                "Is_Premium": speaker_entity.model_name == constants.VCTK_TORTOISE_MODEL
-            }
+            speaker_info = self.get_speaker_details_from_entity(speaker_entity)
+            speaker_info["Preview_link"] = constants.sample_voice_preview.get(speaker_entity.get_id())
             speaker_details.append(speaker_info)
 
         return speaker_details
+
+    def list_speakers_for_chrome_extension(self) -> []:
+        """
+        Returns a list of all speakers present in db. If speaker_ids is none, will return all.
+        """
+        speaker_details = []
+        speaker_entities = self.speaker_repo.list_speakers_details_for_model(model_name=constants.VCTK_VIT_MODEL)
+
+        for speaker_entity in speaker_entities:
+            speaker_info = self.get_speaker_details_from_entity(speaker_entity)
+            speaker_details.append(speaker_info)
+
+        return speaker_details
+
+    def get_speaker_details_from_entity(self, speaker_entity: SpeakerEntity) -> dict:
+        return {
+            "Name": speaker_entity.get_name(),
+            "Gender": speaker_entity.get_gender(),
+            "Id": int(speaker_entity.get_id()),
+            "Language": speaker_entity.get_language(),
+            "Emotion": speaker_entity.get_emotions(),
+            "Country": speaker_entity.get_country(),
+            "Img_url": speaker_entity.get_image_link(),
+            "Preview_link": constants.sample_voice_preview.get(speaker_entity.get_voice_preview_link()),
+            "Type": "standard" if speaker_entity.model_name == constants.VCTK_VIT_MODEL else "premium" if speaker_entity.model_name == constants.VCTK_TORTOISE_MODEL else "clone"
+        }
 
     def create_speakers(self, speaker_details_list) -> bool:
         speaker_entity_list = []
