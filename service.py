@@ -65,12 +65,12 @@ class TTSService:
         if len(audio_files) == 1:
             return True, s3_link, None
 
-        combined_audio = self.apply_cross_fade(audio_files)
-        # combined_audio = np.array([])
-        #
-        # # Iterate through the list of audio files and concatenate them
-        # for audio_file in audio_files:
-        #     combined_audio = np.concatenate((combined_audio, audio_file), axis=0)
+        # combined_audio = self.apply_cross_fade(audio_files)
+        combined_audio = np.array([])
+
+        # Iterate through the list of audio files and concatenate them
+        for audio_file in audio_files:
+            combined_audio = np.concatenate((combined_audio, audio_file), axis=0)
 
         return self.tts_core.save_file_and_upload(combined_audio)
 
