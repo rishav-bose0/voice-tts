@@ -171,33 +171,36 @@ class TTSCore:
 
         return speaker_details
 
-    def list_sample_speakers(self, speaker_ids) -> []:
+    def list_sample_speakers(self, speaker_ids, is_sample=True) -> []:
         """
         Returns a list of all speakers present in db. If speaker_ids is none, will return all.
         @param speaker_ids
+        @param is_sample
         """
         speaker_details = []
         speaker_entities = self.speaker_repo.list_sample_speakers(speaker_ids=speaker_ids)
 
         for speaker_entity in speaker_entities:
             speaker_info = self.get_speaker_details_from_entity(speaker_entity)
-            speaker_info["Preview_link"] = constants.sample_voice_preview.get(speaker_entity.get_id())
+            if is_sample:
+                speaker_info["Preview_link"] = constants.sample_voice_preview.get(speaker_entity.get_id())
             speaker_details.append(speaker_info)
 
         return speaker_details
 
-    def list_speakers_for_chrome_extension(self) -> []:
+    def list_speakers_for_chrome_extension(self, speaker_ids) -> []:
         """
         Returns a list of all speakers present in db. If speaker_ids is none, will return all.
         """
-        speaker_details = []
-        speaker_entities = self.speaker_repo.list_speakers_details_for_model(model_name=constants.VCTK_VIT_MODEL)
-
-        for speaker_entity in speaker_entities:
-            speaker_info = self.get_speaker_details_from_entity(speaker_entity)
-            speaker_details.append(speaker_info)
-
-        return speaker_details
+        return self.list_sample_speakers(speaker_ids=speaker_ids, is_sample=False)
+        # speaker_details = []
+        # speaker_entities = self.speaker_repo.list_speakers_details_for_model(model_name=constants.VCTK_VIT_MODEL)
+        #
+        # for speaker_entity in speaker_entities:
+        #     speaker_info = self.get_speaker_details_from_entity(speaker_entity)
+        #     speaker_details.append(speaker_info)
+        #
+        # return speaker_details
 
     def get_speaker_details_from_entity(self, speaker_entity: SpeakerEntity) -> dict:
         return {
