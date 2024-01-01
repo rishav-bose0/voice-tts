@@ -227,12 +227,11 @@ class ListSpeakerDetails(BaseController):
 class TTSExtension(BaseController):
     def post(self):
         request = BaseController.get_request_input()
-        status, speech_s3_link, err = TTSService().tts_extension(request)
+        speech_s3_link, err = TTSService().tts_extension(request)
         response = {}
         if err is not None:
             response["error"] = err
         else:
             response["speech_s3_link"] = speech_s3_link
-        response["status"] = status
 
         return response, 200
