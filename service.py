@@ -161,6 +161,6 @@ class TTSService:
         return combined_audio
 
     def list_speakers_for_chrome_extension(self):
-        speaker_ids = [106, 103, 102, 98, 97, 96, 89, 87, 78, 77, 76, 74, 70, 67, 66, 65, 58, 52, 50, 49, 48, 44, 43,
-                       41, 37, 36, 34, 29, 25, 19, 18, 14, 13, 10, 8, 3, 0]
+        speaker_ids = [106, 103, 102, 96, 89, 78, 77, 76, 74, 70, 67, 66, 65, 58, 52, 49, 48, 44, 43,
+                       41, 37, 36, 34, 29, 25, 18, 14, 13, 10, 8, 3, 0]
         return self.tts_core.list_speakers_for_chrome_extension(speaker_ids)
