@@ -55,7 +55,7 @@ class TTSService:
             # Check if tts already generated
             is_tts_generated = req.get(constants.IS_TTS_GENERATED, False)
             audio_np, s3_link, err = self.tts_core.process_tts_request(tts_entity, is_tts_generated)
-            print("Processed TTS REquest")
+            print("Processed TTS Request")
             if err is not None:
                 return False, s3_link, err
 
@@ -164,3 +164,11 @@ class TTSService:
         speaker_ids = [106, 103, 102, 96, 89, 78, 77, 76, 74, 70, 67, 66, 65, 58, 52, 49, 48, 44, 43,
                        41, 37, 36, 34, 29, 25, 18, 14, 13, 10, 8, 3, 0]
         return self.tts_core.list_speakers_for_chrome_extension(speaker_ids)
+
+    def tts_extension(self, request):
+        tts_entity = self.to_tts_entity(request)
+        s3_link, err = self.tts_core.tts_for_extension(tts_entity)
+        print("Processed TTS Request")
+        if err is not None:
+            return s3_link, err
+        return s3_link, None

@@ -371,3 +371,30 @@ class TTSCore:
             return True, "Voice Cloning Successful"
         except Exception as e:
             return False, error_descriptions.VOICE_CLONING_FAILED
+
+    def tts_for_extension(self, tts_entity: TTSEntity):
+        """
+        Function processes the text to speech and returns audio in numpy format, s3 link.
+        @param tts_entity: TTSEntity
+        returns: audio numpy, s3 link.
+        """
+        # Call speaker repo and check the model. Based on the model the endpoints are invoked.
+        process_tts_start_time = time.time()
+        speaker_id = tts_entity.get_speech_metadata().get_speaker_id()
+        speaker_entity = self.get_speaker_detail(speaker_id=speaker_id)
+        speaker_details = {
+            "model_name": speaker_entity.model_name,
+            "speaker_name": speaker_entity.name,
+        }
+        if speaker_entity.model_name == constants.VCTK_TORTOISE_MODEL or \
+                speaker_entity.model_name == constants.TORTOISE_CLONE_MODEL:
+            speaker_details["voice_conditioning_link"] = speaker_entity.get_clone_details().get_auto_condition_link()
+
+        audio = self.aws.run_tts(speaker_details=speaker_details, tts_entity=tts_entity)
+        process_tts_end_time = time.time()
+        logger.info("Time taken for tts operation {} secs".format(process_tts_end_time - process_tts_start_time))
+        is_uploaded, s3_link, err = self.save_file_and_upload(audio)
+        if not is_uploaded:
+            return "", err
+        logger.info("TTS successful")
+        return s3_link, None

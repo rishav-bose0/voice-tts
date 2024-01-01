@@ -23,15 +23,6 @@ class Aws:
                                aws_secret_access_key=app_config[aws_const.AWS_ACCESS_KEY])
 
     def run_tts(self, speaker_details: {}, tts_entity: TTSEntity):
-        # request_body = {
-        #     "text": tts_entity.get_text(),
-        #     "voice_conditioning_link": speaker_details.get("voice_conditioning_link"),
-        #     "process_type": "tts",
-        #     # "speaker_id": tts_entity.get_speech_metadata().get_speaker_id(),
-        #     # "duration": tts_entity.get_speech_metadata().get_duration(),
-        #     # "speaker_name": speaker_details.get("speaker_name", ""),  # TODO REmove
-        #     # "tts_type": "api_fast"  # TODO REmove
-        # }
         endpoint_name, request_body = self.get_details_based_on_speaker_model(speaker_details, tts_entity)
         logger.info("Endpoint {}".format(endpoint_name))
         request_string = json.dumps(request_body).encode()

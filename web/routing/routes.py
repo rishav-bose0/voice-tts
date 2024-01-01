@@ -3,7 +3,7 @@ from flask_restx import Api
 from web.controllers.ping_controller import Ping
 from web.controllers.tts_controller import ProcessTTS, SignUpUser, LoginUser, VoicePreview, ListVoices, \
     ListSampleVoices, GetUserDetails, GetProjectDetails, CreateProject, CreateSpeakers, ListAllProjectsForUser, \
-    UpdateUserDetails, CloneVoice, ListSpeakerDetails
+    UpdateUserDetails, CloneVoice, ListSpeakerDetails, TTSExtension
 
 default_routes = {
     '/ping': Ping,
@@ -24,6 +24,7 @@ api_routes = {
     '/update_user_details': UpdateUserDetails,
     '/clone_voice': CloneVoice,
     '/list_speaker_details_for_extension': ListSpeakerDetails,
+    '/tts': TTSExtension,
 }
 
 
