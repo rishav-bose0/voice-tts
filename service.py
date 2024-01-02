@@ -1,3 +1,5 @@
+import time
+
 import numpy as np
 
 import constants
@@ -173,7 +175,10 @@ class TTSService:
             email_id=email_id,
             email=email
         )
+        process_tts_start_time = time.time()
         self.tts_core.save_chrome_user_details(extensions_user_entity)
+        process_tts_end_time = time.time()
+        logger.info("Time taken to save user operation {} secs".format(process_tts_end_time - process_tts_start_time))
 
         tts_entity = self.to_tts_entity(request)
         s3_link, err = self.tts_core.tts_for_extension(tts_entity)
