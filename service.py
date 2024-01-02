@@ -4,6 +4,7 @@ import constants
 import error_descriptions
 import helper_utils as utils
 from core import TTSCore
+from entity.extensions_user_entity import ExtensionsUserEntity
 from entity.project_entity import ProjectEntity
 from entity.tts_entity import TTSEntity, SpeechMetadata
 from entity.user_entity import UserEntity
@@ -165,9 +166,18 @@ class TTSService:
                        41, 37, 36, 34, 29, 25, 18, 14, 13, 10, 8, 3, 0]
         return self.tts_core.list_speakers_for_chrome_extension(speaker_ids)
 
-    def tts_extension(self, request):
+    def tts_extension(self, request, headers):
+        email, email_id = utils.is_chrome_auth_valid(headers.get('Auth'))[1:]
+
+        extensions_user_entity = ExtensionsUserEntity(
+            email_id=email_id,
+            email=email
+        )
+        self.tts_core.save_chrome_user_details(extensions_user_entity)
+
         tts_entity = self.to_tts_entity(request)
         s3_link, err = self.tts_core.tts_for_extension(tts_entity)
+
         print("Processed TTS Request")
         if err is not None:
             return s3_link, err

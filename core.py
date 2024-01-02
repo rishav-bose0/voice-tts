@@ -8,12 +8,14 @@ import error_descriptions
 import helper_utils as utils
 from aws.aws_vits import Aws
 from common.utils.rzp_id import RzpID
+from entity.extensions_user_entity import ExtensionsUserEntity
 from entity.project_entity import ProjectEntity
 from entity.speaker_entity import SpeakerEntity, CloneDetails
 from entity.tts_entity import TTSEntity
 from entity.user_entity import UserEntity
-from factory import TTSApiFactory, UsersApiFactory, ProjectApiFactory
+from factory import TTSApiFactory, UsersApiFactory, ProjectApiFactory, ExtensionsUsersApiFactory
 from logger import logger
+from repository.extensions_user_repository import ExtensionsUserRepository
 from repository.project_repository import ProjectRepository
 from repository.speaker_repository import SpeakerRepository
 from repository.tts_repository import TTSRepository
@@ -25,10 +27,12 @@ class TTSCore:
         self.aws = Aws()
         self.tts_repo = TTSRepository()
         self.user_repo = UserRepository()
+        self.extensions_user_repo = ExtensionsUserRepository()
         self.speaker_repo = SpeakerRepository()
         self.project_repo = ProjectRepository()
         self.tts_api_factory = TTSApiFactory()
         self.user_api_factory = UsersApiFactory()
+        self.extensions_user_api_factory = ExtensionsUsersApiFactory()
         self.project_api_factory = ProjectApiFactory()
 
     def process_tts_request(self, tts_entity: TTSEntity, is_tts_generated: bool):
@@ -398,3 +402,7 @@ class TTSCore:
             return "", err
         logger.info("TTS successful")
         return s3_link, None
+
+    def save_chrome_user_details(self, extensions_user_entity: ExtensionsUserEntity):
+        extensions_user_aggregate = self.extensions_user_api_factory.build(extensions_user_entity)
+        self.extensions_user_repo.create_extensions_user_aggregate(extensions_user_aggregate)

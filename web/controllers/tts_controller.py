@@ -7,7 +7,7 @@ from werkzeug.utils import secure_filename
 import helper_utils
 from service import TTSService
 from web.controllers.base_controller import BaseController
-from web.routing.auth import authenticate
+from web.routing.auth import authenticate, chrome_authenticate
 
 
 class ProcessTTS(BaseController):
@@ -225,9 +225,12 @@ class ListSpeakerDetails(BaseController):
 
 
 class TTSExtension(BaseController):
+    method_decorators = [chrome_authenticate]
+
     def post(self):
         request = BaseController.get_request_input()
-        speech_s3_link, err = TTSService().tts_extension(request)
+        headers = BaseController.get_headers()
+        speech_s3_link, err = TTSService().tts_extension(request, headers)
         response = {}
         if err is not None:
             response["error"] = err

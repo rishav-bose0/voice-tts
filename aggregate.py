@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 
+from entity.extensions_user_entity import ExtensionsUserEntity
 from entity.project_entity import ProjectEntity
 from entity.speaker_entity import SpeakerEntity
 from entity.tts_entity import TTSEntity
@@ -48,3 +49,14 @@ class ProjectAggregate:
 
     def set_project_entity(self, project_entity):
         self.project_entity = project_entity
+
+
+@dataclass
+class ExtensionsUserAggregate:
+    extensions_user_entity: ExtensionsUserEntity = field(default_factory=ExtensionsUserEntity)
+
+    def get_extensions_user_entity(self):
+        return self.extensions_user_entity
+
+    def set_extensions_user_entity(self, extensions_user_entity):
+        self.extensions_user_entity = extensions_user_entity
