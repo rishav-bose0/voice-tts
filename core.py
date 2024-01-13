@@ -344,6 +344,7 @@ class TTSCore:
         gender = voice_clone_details.get("gender")
         folder_s3_link = self.aws.upload_folder_to_s3(local_folder_path=resampled_voice_folder_path,
                                                       s3_folder_path="cloned_voice/{}_{}".format(speaker_name, user_id))
+        logger.info("Folder for cloned s3_link {}".format(folder_s3_link))
         if folder_s3_link is None:
             return False, error_descriptions.VOICE_CLONING_FAILED
 

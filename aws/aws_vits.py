@@ -85,7 +85,9 @@ class Aws:
             for file in files:
                 local_file_path = os.path.join(root, file)
                 s3_file_path = "{}/{}".format(s3_folder_path, file)
+                logger.info("S3 file path is {}".format(s3_file_path))
                 is_success, s3_link, err = self.upload_to_s3(local_file_path, s3_file_path)
+                logger.info("is_success {} , s3_link {}, err {}".format(is_success, s3_link, err))
                 if err is not None:
                     logger.info("Error uploading to s3 with err {}".format(err))
                     return None
