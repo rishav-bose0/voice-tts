@@ -149,7 +149,12 @@ def resample_folder_audio(folder_path: str, output_folder_path: str):
             if filename.endswith(".wav"):
                 audio = AudioSegment.from_wav(input_file)
             elif filename.endswith(".mp3"):
+                logger.info("Here")
                 audio = AudioSegment.from_mp3(input_file)
+                # Resample the audio to the target sample rate
+                resampled_audio = audio.set_frame_rate(target_sr)
+                resampled_audio.export(output_file, format="wav")
+                return True
             elif filename.endswith(".ogg"):
                 audio = AudioSegment.from_ogg(input_file)
 
