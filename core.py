@@ -349,7 +349,7 @@ class TTSCore:
             return False, error_descriptions.VOICE_CLONING_FAILED
 
         voice_clone_details["voice_clone_s3_link"] = folder_s3_link
-        utils.delete_dir(resampled_voice_folder_path)
+        # utils.delete_dir(resampled_voice_folder_path)
 
         # https://voaux.s3.ap-south-1.amazonaws.com/cloned_voice/Karen_N7mXC9iSRU0DgJ/
         auto_conditioning_s3_link = self.aws.add_voice_clone(clone_details=voice_clone_details)
