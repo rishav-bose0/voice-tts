@@ -102,3 +102,19 @@ class SpeakerRepository(base.Base):
         for speaker_detail_model in speaker_detail_models:
             speaker_list.append(speaker_detail_model.to_entity())
         return speaker_list
+
+    def list_speakers_details_for_model(self, model_name) -> [SpeakerEntity]:
+        try:
+            speaker_detail_models = self.model.query.filter(self.model.model_name == model_name).order_by(
+                desc(self.model.created_at)
+            ).all()
+        except Exception as e:
+            logger.error(e)
+            raise e
+        finally:
+            self.model.query.session.close()
+
+        speaker_list = []
+        for speaker_detail_model in speaker_detail_models:
+            speaker_list.append(speaker_detail_model.to_entity())
+        return speaker_list

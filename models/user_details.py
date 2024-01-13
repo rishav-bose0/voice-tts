@@ -11,7 +11,7 @@ class UserDetails(base.Base, db.Model):
     first_name = db.Column(db.String(100), nullable=False)
     last_name = db.Column(db.String(100), nullable=False)
     password = db.Column(db.String(100), nullable=True)
-    token = db.Column(db.String(2000), nullable=False)
+    token = db.Column(db.String, nullable=False)
     privilege_type = db.Column(db.String(50), nullable=False)
 
     def __init__(self, entity: user_entity.UserEntity):

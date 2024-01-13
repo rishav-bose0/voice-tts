@@ -1,4 +1,5 @@
-from aggregate import TTSAggregate, UserAggregate, ProjectAggregate
+from aggregate import TTSAggregate, UserAggregate, ProjectAggregate, ExtensionsUserAggregate
+from entity.extensions_user_entity import ExtensionsUserEntity
 from entity.project_entity import ProjectEntity
 from entity.tts_entity import TTSEntity
 from entity.user_entity import UserEntity
@@ -32,3 +33,13 @@ class ProjectApiFactory:
         project_aggregate = ProjectAggregate(entity)
         project_aggregate.get_project_entity().initialize()
         return project_aggregate
+
+
+class ExtensionsUsersApiFactory:
+    def __init__(self):
+        pass
+
+    def build(self, entity: ExtensionsUserEntity) -> ExtensionsUserAggregate:
+        extensions_user_aggregate = ExtensionsUserAggregate(entity)
+        extensions_user_aggregate.get_extensions_user_entity().initialize()
+        return extensions_user_aggregate

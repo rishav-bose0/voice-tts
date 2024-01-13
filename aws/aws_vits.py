@@ -23,15 +23,6 @@ class Aws:
                                aws_secret_access_key=app_config[aws_const.AWS_ACCESS_KEY])
 
     def run_tts(self, speaker_details: {}, tts_entity: TTSEntity):
-        # request_body = {
-        #     "text": tts_entity.get_text(),
-        #     "voice_conditioning_link": speaker_details.get("voice_conditioning_link"),
-        #     "process_type": "tts",
-        #     # "speaker_id": tts_entity.get_speech_metadata().get_speaker_id(),
-        #     # "duration": tts_entity.get_speech_metadata().get_duration(),
-        #     # "speaker_name": speaker_details.get("speaker_name", ""),  # TODO REmove
-        #     # "tts_type": "api_fast"  # TODO REmove
-        # }
         endpoint_name, request_body = self.get_details_based_on_speaker_model(speaker_details, tts_entity)
         logger.info("Endpoint {}".format(endpoint_name))
         request_string = json.dumps(request_body).encode()
@@ -94,7 +85,9 @@ class Aws:
             for file in files:
                 local_file_path = os.path.join(root, file)
                 s3_file_path = "{}/{}".format(s3_folder_path, file)
+                logger.info("S3 file path is {}".format(s3_file_path))
                 is_success, s3_link, err = self.upload_to_s3(local_file_path, s3_file_path)
+                logger.info("is_success {} , s3_link {}, err {}".format(is_success, s3_link, err))
                 if err is not None:
                     logger.info("Error uploading to s3 with err {}".format(err))
                     return None

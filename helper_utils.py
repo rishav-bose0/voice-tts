@@ -1,5 +1,6 @@
 import os
 import random
+import re
 import shutil
 from datetime import datetime, timedelta
 
@@ -14,6 +15,9 @@ from common.utils.unique_id_generator import UniqueIdGenerator
 from config import app_config
 from constants import JWT_EXPIRY_TIME, JWT_SECRET
 from logger import logger
+
+email_pattern = r'^[^\s@]+@[^\s@]+\.[^\s@]+$'
+id_pattern = r'^[a-zA-Z0-9_]+$'
 
 
 def save_audio_file(audio, path="/tmp/"):
@@ -145,7 +149,12 @@ def resample_folder_audio(folder_path: str, output_folder_path: str):
             if filename.endswith(".wav"):
                 audio = AudioSegment.from_wav(input_file)
             elif filename.endswith(".mp3"):
+                logger.info("Here")
                 audio = AudioSegment.from_mp3(input_file)
+                # Resample the audio to the target sample rate
+                resampled_audio = audio.set_frame_rate(target_sr)
+                resampled_audio.export(output_file, format="wav")
+                return True
             elif filename.endswith(".ogg"):
                 audio = AudioSegment.from_ogg(input_file)
 
@@ -160,3 +169,22 @@ def resample_folder_audio(folder_path: str, output_folder_path: str):
                 return False
 
     return True
+
+
+def is_chrome_auth_valid(encoded_auth):
+    try:
+        email, email_id = decode_base64(encoded_string=encoded_auth).split("_")
+    except Exception:
+        return False, "", ""
+    logger.info("Email - {} and id - {}")
+    return bool(re.match(email_pattern, email)) and bool(re.match(id_pattern, email_id)), email, email_id
+
+
+def decode_base64(encoded_string):
+    import base64
+    # Convert the encoded string to bytes using utf-8 encoding
+    bytes_string = encoded_string.encode('iso-8859-1')
+
+    # Decode the Base64 bytes to a string
+    decoded_string = base64.b64decode(bytes_string).decode('iso-8859-1')
+    return decoded_string

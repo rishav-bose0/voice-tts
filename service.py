@@ -1,9 +1,12 @@
+import time
+
 import numpy as np
 
 import constants
 import error_descriptions
 import helper_utils as utils
 from core import TTSCore
+from entity.extensions_user_entity import ExtensionsUserEntity
 from entity.project_entity import ProjectEntity
 from entity.tts_entity import TTSEntity, SpeechMetadata
 from entity.user_entity import UserEntity
@@ -55,7 +58,7 @@ class TTSService:
             # Check if tts already generated
             is_tts_generated = req.get(constants.IS_TTS_GENERATED, False)
             audio_np, s3_link, err = self.tts_core.process_tts_request(tts_entity, is_tts_generated)
-            print("Processed TTS REquest")
+            print("Processed TTS Request")
             if err is not None:
                 return False, s3_link, err
 
@@ -65,6 +68,7 @@ class TTSService:
         if len(audio_files) == 1:
             return True, s3_link, None
 
+        # combined_audio = self.apply_cross_fade(audio_files)
         combined_audio = np.array([])
 
         # Iterate through the list of audio files and concatenate them
@@ -139,3 +143,47 @@ class TTSService:
 
     def create_voice_clone(self, voice_clone_details):
         return self.tts_core.create_voice_clone(voice_clone_details)
+
+    def apply_cross_fade(self, audio_files):
+        # Assuming audio_files is a list of numpy arrays representing audio clips
+        fade_duration = 22050  # Duration of the crossfade in samples (adjust as needed)
+
+        combined_audio = audio_files[0]  # Initialize with the first audio clip
+
+        for i in range(1, len(audio_files)):
+            overlap = audio_files[i - 1][-fade_duration:]  # Extract overlap from the previous clip
+            next_clip = audio_files[i][:fade_duration]  # Extract the beginning of the next clip
+
+            # Apply crossfade by averaging the overlapping sections
+            crossfade = np.linspace(1, 0, fade_duration) * overlap + np.linspace(0, 1, fade_duration) * next_clip
+
+            # Concatenate the crossfaded portion with the next audio clip
+            combined_audio = np.concatenate(
+                (combined_audio[:-fade_duration], crossfade, audio_files[i][fade_duration:]), axis=0)
+
+        return combined_audio
+
+    def list_speakers_for_chrome_extension(self):
+        speaker_ids = [106, 103, 102, 96, 89, 78, 77, 76, 74, 70, 67, 66, 65, 58, 52, 49, 48, 44, 43,
+                       41, 37, 36, 34, 29, 25, 18, 14, 13, 10, 8, 3, 0]
+        return self.tts_core.list_speakers_for_chrome_extension(speaker_ids)
+
+    def tts_extension(self, request, headers):
+        email, email_id = utils.is_chrome_auth_valid(headers.get('Auth'))[1:]
+
+        extensions_user_entity = ExtensionsUserEntity(
+            email_id=email_id,
+            email=email
+        )
+        process_tts_start_time = time.time()
+        self.tts_core.save_chrome_user_details(extensions_user_entity)
+        process_tts_end_time = time.time()
+        logger.info("Time taken to save user operation {} secs".format(process_tts_end_time - process_tts_start_time))
+
+        tts_entity = self.to_tts_entity(request)
+        s3_link, err = self.tts_core.tts_for_extension(tts_entity)
+
+        print("Processed TTS Request")
+        if err is not None:
+            return s3_link, err
+        return s3_link, None

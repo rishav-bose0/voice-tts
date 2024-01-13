@@ -8,12 +8,14 @@ import error_descriptions
 import helper_utils as utils
 from aws.aws_vits import Aws
 from common.utils.rzp_id import RzpID
+from entity.extensions_user_entity import ExtensionsUserEntity
 from entity.project_entity import ProjectEntity
 from entity.speaker_entity import SpeakerEntity, CloneDetails
 from entity.tts_entity import TTSEntity
 from entity.user_entity import UserEntity
-from factory import TTSApiFactory, UsersApiFactory, ProjectApiFactory
+from factory import TTSApiFactory, UsersApiFactory, ProjectApiFactory, ExtensionsUsersApiFactory
 from logger import logger
+from repository.extensions_user_repository import ExtensionsUserRepository
 from repository.project_repository import ProjectRepository
 from repository.speaker_repository import SpeakerRepository
 from repository.tts_repository import TTSRepository
@@ -25,10 +27,12 @@ class TTSCore:
         self.aws = Aws()
         self.tts_repo = TTSRepository()
         self.user_repo = UserRepository()
+        self.extensions_user_repo = ExtensionsUserRepository()
         self.speaker_repo = SpeakerRepository()
         self.project_repo = ProjectRepository()
         self.tts_api_factory = TTSApiFactory()
         self.user_api_factory = UsersApiFactory()
+        self.extensions_user_api_factory = ExtensionsUsersApiFactory()
         self.project_api_factory = ProjectApiFactory()
 
     def process_tts_request(self, tts_entity: TTSEntity, is_tts_generated: bool):
@@ -166,44 +170,54 @@ class TTSCore:
 
         speaker_entities = self.speaker_repo.list_all_speakers(user_id)
         for speaker_entity in speaker_entities:
-            speaker_info = {
-                "Name": speaker_entity.get_name(),
-                "Gender": speaker_entity.get_gender(),
-                "Id": int(speaker_entity.get_id()),
-                "Language": speaker_entity.get_language(),
-                "Emotion": speaker_entity.get_emotions(),
-                "Country": speaker_entity.get_country(),
-                "Img_url": speaker_entity.get_image_link(),
-                "Preview_link": speaker_entity.get_voice_preview_link(),
-                "Type": "standard" if speaker_entity.model_name == constants.VCTK_VIT_MODEL else "premium" if speaker_entity.model_name == constants.VCTK_TORTOISE_MODEL else "clone"
-            }
+            speaker_info = self.get_speaker_details_from_entity(speaker_entity)
             speaker_details.append(speaker_info)
 
         return speaker_details
 
-    def list_sample_speakers(self, speaker_ids) -> []:
+    def list_sample_speakers(self, speaker_ids, is_sample=True) -> []:
         """
         Returns a list of all speakers present in db. If speaker_ids is none, will return all.
         @param speaker_ids
+        @param is_sample
         """
         speaker_details = []
         speaker_entities = self.speaker_repo.list_sample_speakers(speaker_ids=speaker_ids)
 
         for speaker_entity in speaker_entities:
-            speaker_info = {
-                "Name": speaker_entity.get_name(),
-                "Gender": speaker_entity.get_gender(),
-                "Id": int(speaker_entity.get_id()),
-                "Language": speaker_entity.get_language(),
-                "Emotion": speaker_entity.get_emotions(),
-                "Country": speaker_entity.get_country(),
-                "Img_url": speaker_entity.get_image_link(),
-                "Preview_link": constants.sample_voice_preview.get(speaker_entity.get_id()),
-                "Is_Premium": speaker_entity.model_name == constants.VCTK_TORTOISE_MODEL
-            }
+            speaker_info = self.get_speaker_details_from_entity(speaker_entity)
+            if is_sample:
+                speaker_info["Preview_link"] = constants.sample_voice_preview.get(speaker_entity.get_id())
             speaker_details.append(speaker_info)
 
         return speaker_details
+
+    def list_speakers_for_chrome_extension(self, speaker_ids) -> []:
+        """
+        Returns a list of all speakers present in db. If speaker_ids is none, will return all.
+        """
+        return self.list_sample_speakers(speaker_ids=speaker_ids, is_sample=False)
+        # speaker_details = []
+        # speaker_entities = self.speaker_repo.list_speakers_details_for_model(model_name=constants.VCTK_VIT_MODEL)
+        #
+        # for speaker_entity in speaker_entities:
+        #     speaker_info = self.get_speaker_details_from_entity(speaker_entity)
+        #     speaker_details.append(speaker_info)
+        #
+        # return speaker_details
+
+    def get_speaker_details_from_entity(self, speaker_entity: SpeakerEntity) -> dict:
+        return {
+            "Name": speaker_entity.get_name(),
+            "Gender": speaker_entity.get_gender(),
+            "Id": int(speaker_entity.get_id()),
+            "Language": speaker_entity.get_language(),
+            "Emotion": speaker_entity.get_emotions(),
+            "Country": speaker_entity.get_country(),
+            "Img_url": speaker_entity.get_image_link(),
+            "Preview_link": speaker_entity.get_voice_preview_link(),
+            "Type": "standard" if speaker_entity.model_name == constants.VCTK_VIT_MODEL else "premium" if speaker_entity.model_name == constants.VCTK_TORTOISE_MODEL else "clone"
+        }
 
     def create_speakers(self, speaker_details_list) -> bool:
         speaker_entity_list = []
@@ -330,11 +344,12 @@ class TTSCore:
         gender = voice_clone_details.get("gender")
         folder_s3_link = self.aws.upload_folder_to_s3(local_folder_path=resampled_voice_folder_path,
                                                       s3_folder_path="cloned_voice/{}_{}".format(speaker_name, user_id))
+        logger.info("Folder for cloned s3_link {}".format(folder_s3_link))
         if folder_s3_link is None:
             return False, error_descriptions.VOICE_CLONING_FAILED
 
         voice_clone_details["voice_clone_s3_link"] = folder_s3_link
-        utils.delete_dir(resampled_voice_folder_path)
+        # utils.delete_dir(resampled_voice_folder_path)
 
         # https://voaux.s3.ap-south-1.amazonaws.com/cloned_voice/Karen_N7mXC9iSRU0DgJ/
         auto_conditioning_s3_link = self.aws.add_voice_clone(clone_details=voice_clone_details)
@@ -361,3 +376,34 @@ class TTSCore:
             return True, "Voice Cloning Successful"
         except Exception as e:
             return False, error_descriptions.VOICE_CLONING_FAILED
+
+    def tts_for_extension(self, tts_entity: TTSEntity):
+        """
+        Function processes the text to speech and returns audio in numpy format, s3 link.
+        @param tts_entity: TTSEntity
+        returns: audio numpy, s3 link.
+        """
+        # Call speaker repo and check the model. Based on the model the endpoints are invoked.
+        process_tts_start_time = time.time()
+        speaker_id = tts_entity.get_speech_metadata().get_speaker_id()
+        speaker_entity = self.get_speaker_detail(speaker_id=speaker_id)
+        speaker_details = {
+            "model_name": speaker_entity.model_name,
+            "speaker_name": speaker_entity.name,
+        }
+        if speaker_entity.model_name == constants.VCTK_TORTOISE_MODEL or \
+                speaker_entity.model_name == constants.TORTOISE_CLONE_MODEL:
+            speaker_details["voice_conditioning_link"] = speaker_entity.get_clone_details().get_auto_condition_link()
+
+        audio = self.aws.run_tts(speaker_details=speaker_details, tts_entity=tts_entity)
+        process_tts_end_time = time.time()
+        logger.info("Time taken for tts operation {} secs".format(process_tts_end_time - process_tts_start_time))
+        is_uploaded, s3_link, err = self.save_file_and_upload(audio)
+        if not is_uploaded:
+            return "", err
+        logger.info("TTS successful")
+        return s3_link, None
+
+    def save_chrome_user_details(self, extensions_user_entity: ExtensionsUserEntity):
+        extensions_user_aggregate = self.extensions_user_api_factory.build(extensions_user_entity)
+        self.extensions_user_repo.create_extensions_user_aggregate(extensions_user_aggregate)

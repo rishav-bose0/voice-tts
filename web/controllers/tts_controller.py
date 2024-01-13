@@ -7,7 +7,7 @@ from werkzeug.utils import secure_filename
 import helper_utils
 from service import TTSService
 from web.controllers.base_controller import BaseController
-from web.routing.auth import authenticate
+from web.routing.auth import authenticate, chrome_authenticate
 
 
 class ProcessTTS(BaseController):
@@ -215,4 +215,26 @@ class CloneVoice(BaseController):
         helper_utils.delete_dir(voice_clone_details.get("voice_folder"))
 
         response = {"voice_clone_success": is_success, "message": message}
+        return response, 200
+
+
+### Chrome Extensions Logic
+class ListSpeakerDetails(BaseController):
+    def get(self):
+        return TTSService().list_speakers_for_chrome_extension()
+
+
+class TTSExtension(BaseController):
+    method_decorators = [chrome_authenticate]
+
+    def post(self):
+        request = BaseController.get_request_input()
+        headers = BaseController.get_headers()
+        speech_s3_link, err = TTSService().tts_extension(request, headers)
+        response = {}
+        if err is not None:
+            response["error"] = err
+        else:
+            response["speech_s3_link"] = speech_s3_link
+
         return response, 200
