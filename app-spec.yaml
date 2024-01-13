@@ -1,0 +1,7 @@
+name: dockerfile
+services:
+  - name: web
+    git:
+      repo_clone_url: https://github.com/rishav-bose0/voice-tts.git
+      branch: chrome-extension
+    dockerfile_path: Dockerfile
