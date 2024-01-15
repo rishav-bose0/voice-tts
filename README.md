@@ -1,0 +1,2 @@
+This is code written for my chrome extension. It's a read aloud extension. Users select the paragraph that they want to read aloud. Its powered through voaux (which is my own tts). There are lot of voices to choose from. Currently works only for english language and for websites. (Support for PDF and google docs will come soon).
+![promo4](https://github.com/rishav-bose0/voice-tts/assets/79586890/1ac427d5-6c08-4906-8ac5-78898b5a6b9f)
